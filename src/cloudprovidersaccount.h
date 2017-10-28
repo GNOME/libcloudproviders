@@ -21,7 +21,6 @@
 #define CLOUD_PROVIDERS_ACCOUNT_H
 
 #include <gio/gio.h>
-#include "cloudproviders-generated.h"
 
 G_BEGIN_DECLS
 
@@ -51,7 +50,7 @@ struct _CloudProvidersAccountClass
   GObjectClass parent_class;
 };
 
-CloudProvidersAccount *cloud_providers_account_new (CloudProvidersDbusAccountProxy *proxy);
+CloudProvidersAccount *cloud_providers_account_new (GDBusProxy *proxy);
 
 gchar* cloud_providers_account_get_name (CloudProvidersAccount *self);
 CloudProvidersAccountStatus cloud_providers_account_get_status (CloudProvidersAccount *self);

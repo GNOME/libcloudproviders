@@ -250,7 +250,7 @@ cloud_providers_account_set_property (GObject      *object,
  * Object are usually fetched from cloud_providers_get_providers() as a list.
  */
 CloudProvidersAccount*
-cloud_providers_account_new (CloudProvidersDbusAccountProxy *proxy)
+cloud_providers_account_new (GDBusProxy *proxy)
 {
   CloudProvidersAccount *self;
 
