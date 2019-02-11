@@ -76,7 +76,7 @@ endif
 
 vapigen_dep = find_program('vapigen', required : false)
 
-if get_option('vapigen') and vapigen_dep.found()
+if get_option('vapigen')
   libcloudproviders_vapi = gnome.generate_vapi(
     'cloudproviders',
     sources: libcloudproviders_gir[0],
