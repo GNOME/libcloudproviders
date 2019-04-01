@@ -45,7 +45,7 @@ cloud_providers_provider_exporter_get_name (CloudProvidersProviderExporter *self
 CloudProvidersProviderExporter*
 cloud_providers_provider_exporter_new (GDBusConnection *bus,
                                        const gchar     *bus_name,
-                                       const gchar     *object_path);
+                                       const gchar     *bus_path);
 
 G_END_DECLS
 

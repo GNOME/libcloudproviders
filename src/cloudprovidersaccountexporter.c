@@ -371,7 +371,6 @@ cloud_providers_account_exporter_set_menu_model (CloudProvidersAccountExporter *
 /**
  * cloud_providers_account_exporter_set_action_group:
  * @self: The cloud provider
- * @account_name: The name of the account
  * @action_group: The GActionGroup to be used by the menu exported by cloud_providers_account_exporter_export_menu
  *
  * In order for a menu exported with cloud_providers_account_exporter_export_menu to receive events
