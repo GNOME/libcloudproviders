@@ -75,8 +75,8 @@ on_bus_acquired (GObject      *source_object,
   bus = g_bus_get_finish (res, &error);
   if (error != NULL)
     {
-      if (error->code != G_IO_ERROR_CANCELLED)
-        g_warning ("Error acdquiring bus for cloud provider %s", error->message);
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        g_debug ("Error acquiring bus for cloud providers: %s", error->message);
       return;
     }
 
