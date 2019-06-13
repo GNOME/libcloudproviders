@@ -252,7 +252,7 @@ update_cloud_providers_accounts (CloudProvidersProvider *self)
         {
             CloudProvidersAccount *account;
 
-            account = cloud_providers_account_new (CLOUD_PROVIDERS_DBUS_ACCOUNT_PROXY (cloud_providers_dbus_object_peek_account (object)));
+            account = cloud_providers_account_new (G_DBUS_PROXY (cloud_providers_dbus_object_peek_account (object)));
 
             self->accounts = g_list_append (self->accounts, account);
             g_object_unref (interface);
@@ -355,8 +355,8 @@ on_bus_acquired (GObject      *source_object,
   bus = g_bus_get_finish (res, &error);
   if (error != NULL)
     {
-      if (error->code != G_IO_ERROR_CANCELLED)
-        g_warning ("Error acdquiring bus for cloud provider %s", error->message);
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        g_debug ("Error acquiring bus for cloud provider: %s", error->message);
       return;
     }
 
