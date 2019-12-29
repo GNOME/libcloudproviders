@@ -61,7 +61,7 @@ if get_option('introspection')
   libcloudproviders_gir = gnome.generate_gir(
     libcloudproviders,
     sources: libcloudproviders_headers + libcloudproviders_sources,
-    nsversion: meson.project_version(),
+    nsversion: api_version,
     dependencies: libcloudproviders_deps,
     namespace: 'CloudProviders',
     symbol_prefix: 'cloud_providers',

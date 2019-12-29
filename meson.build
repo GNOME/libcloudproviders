@@ -8,6 +8,10 @@ project ('libcloudproviders', 'c',
   ]
 )
 
+api_version = '@0@.@1@'.format(
+  meson.project_version().split('.')[0],
+  meson.project_version().split('.')[1])
+
 cc = meson.get_compiler('c')
 
 test_cflags = [
