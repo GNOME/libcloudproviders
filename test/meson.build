@@ -10,7 +10,7 @@ executable('testcloudprovidersclient', 'testcloudprovidersclient.c',
 
 configure_file(input : 'icon.svg',
                output : 'icon.svg',
-               configuration : configuration_data())
+               copy : true)
 
 if installed
   service_conf = configuration_data ()
