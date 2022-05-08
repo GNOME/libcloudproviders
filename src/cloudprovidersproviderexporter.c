@@ -118,7 +118,7 @@ unexport_account(CloudProvidersProviderExporter *self,
  *
  * Each cloud provider can have a variety of account associated with it. Use this
  * function to add the accounts the user set up. This function is currently only internal,
- * as we do automation for hte dbus handling for adding and exporting an account.
+ * as we do automation for the dbus handling for adding and exporting an account.
  * This is handled in cloud_providers_account_exporter_new().
  */
 void
