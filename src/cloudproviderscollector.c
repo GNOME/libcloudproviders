@@ -95,6 +95,7 @@ cloud_providers_collector_finalize (GObject *object)
     GList *l;
 
     g_cancellable_cancel (self->cancellable);
+    g_clear_object (&self->cancellable);
     for (l = self->monitors; l != NULL; l = l->next)
     {
         g_signal_handlers_disconnect_by_data (G_OBJECT (l->data), self);
@@ -280,6 +281,7 @@ update_cloud_providers (CloudProvidersCollector *self)
     GList *l;
 
     g_cancellable_cancel (self->cancellable);
+    g_clear_object (&self->cancellable);
     self->cancellable = g_cancellable_new ();
     for (l = self->monitors; l != NULL; l = l->next)
     {
