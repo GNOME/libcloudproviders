@@ -47,7 +47,7 @@ G_DEFINE_TYPE (CloudProvidersProvider, cloud_providers_provider, G_TYPE_OBJECT)
  * @short_description: Base object for representing a single provider for clients.
  * @include: src/cloudprovidersprovider.h
  *
- * #CloudProvidersProvider is the basic object object for client implementators
+ * #CloudProvidersProvider is the basic object object for client implementers
  * that contains the properties of the provider such as name, and the accounts
  * associated with it.
  */
@@ -178,7 +178,7 @@ cloud_providers_provider_class_init (CloudProvidersProviderClass *klass)
   /**
    * CloudProviderProvider::accounts-changed
    *
-   * This signal is emmited by a provider if the number of accounts changed.
+   * This signal is emitted by a provider if the number of accounts changed.
    */
   signals [ACCOUNTS_CHANGED] =
     g_signal_new ("accounts-changed",
@@ -193,7 +193,7 @@ cloud_providers_provider_class_init (CloudProvidersProviderClass *klass)
   /**
    * CloudProviderProvider::removed
    *
-   * This signal is emmited by a provider when the provider is removed in DBUS.
+   * This signal is emitted by a provider when the provider is removed in DBUS.
    */
   signals [REMOVED] =
     g_signal_new ("removed",

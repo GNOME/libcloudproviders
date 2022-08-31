@@ -359,7 +359,7 @@ cloud_providers_account_exporter_set_icon (CloudProvidersAccountExporter *self,
  *
  * One of the benefits of the integration is to display a menu with available
  * options for an account. Use this function to export a GMenuModel menu to be
- * displayed by the choosen integration by the desktop environment or application.
+ * displayed by the chosen integration by the desktop environment or application.
  */
 void
 cloud_providers_account_exporter_set_menu_model (CloudProvidersAccountExporter *self,

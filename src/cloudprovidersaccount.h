@@ -31,7 +31,7 @@ G_BEGIN_DECLS
  * @CLOUD_PROVIDERS_ACCOUNT_STATUS_INVALID: Set if the initial state of the account is unknown
  * @CLOUD_PROVIDERS_ACCOUNT_STATUS_IDLE: Set if the account is in idle mode
  * @CLOUD_PROVIDERS_ACCOUNT_STATUS_SYNCING: Set if the account is currently synchronizing data
- * @CLOUD_PROVIDERS_ACCOUNT_STATUS_ERROR: Set if an error occured
+ * @CLOUD_PROVIDERS_ACCOUNT_STATUS_ERROR: Set if an error occurred
  *
  * Enum values used to describe the sync status of a cloud providers account
  **/

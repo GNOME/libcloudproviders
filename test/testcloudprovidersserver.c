@@ -287,7 +287,7 @@ on_bus_acquired (GDBusConnection *connection,
 {
     CloudProvidersTestServer *self = CLOUD_PROVIDERS_TEST_SERVER (user_data);
 
-    g_debug ("Bus adquired: %s\n", name);
+    g_debug ("Bus acquired: %s\n", name);
 
     g_debug ("Registering cloud provider server 'MyCloud'\n");
 
@@ -309,7 +309,7 @@ on_name_acquired (GDBusConnection *connection,
   self->timeout_handler = g_timeout_add (TIMEOUT,
                                          (GSourceFunc) change_random_cloud_provider_state,
                                          self);
-  g_debug ("Server test name adquired");
+  g_debug ("Server test name acquired");
   change_random_cloud_provider_state (self);
 }
 

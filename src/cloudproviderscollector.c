@@ -120,7 +120,7 @@ cloud_providers_collector_class_init (CloudProvidersCollectorClass *klass)
   /**
    * CloudProviderCollector::providers-changed
    *
-   * This signal is emmited by the ammount of providers changed.
+   * This signal is emitted by the amount of providers changed.
    */
   signals [PROVIDERS_CHANGED] = g_signal_new ("providers-changed",
                                               G_TYPE_FROM_CLASS (klass),
