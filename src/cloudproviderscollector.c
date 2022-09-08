@@ -227,16 +227,16 @@ load_cloud_providers (CloudProvidersCollector *self)
     const gchar* const *data_dirs;
     gint i;
     gint len;
-    gchar *key_files_directory_path;
-    GFile *key_files_directory_file;
-    GError *error = NULL;
-    GFileEnumerator *file_enumerator;
 
     data_dirs = g_get_system_data_dirs ();
     len = g_strv_length ((gchar **)data_dirs);
     for (i = 0; i < len; i++)
     {
-        GFileInfo *info;
+        g_autofree gchar *key_files_directory_path = NULL;
+        g_autoptr (GFile) key_files_directory_file = NULL;
+        g_autoptr (GError) error = NULL;
+        g_autoptr (GFileEnumerator) file_enumerator = NULL;
+        g_autoptr (GFileInfo) info = NULL;
         GFileMonitor *monitor;
 
         key_files_directory_path = g_build_filename (data_dirs[i], "cloud-providers", NULL);
@@ -252,7 +252,6 @@ load_cloud_providers (CloudProvidersCollector *self)
                                                      &error);
         if (error)
         {
-            error = NULL;
             continue;
         }
 
@@ -260,18 +259,14 @@ load_cloud_providers (CloudProvidersCollector *self)
         if (error)
         {
              g_warning ("Error while enumerating file %s error: %s\n", key_files_directory_path, error->message);
-             error = NULL;
              continue;
         }
         while (info != NULL && error == NULL)
         {
             load_cloud_provider (self, g_file_enumerator_get_child (file_enumerator, info));
-            g_object_unref (info);
+            g_clear_object (&info);
             info = g_file_enumerator_next_file (file_enumerator, NULL, &error);
         }
-        g_object_unref (file_enumerator);
-        g_free (key_files_directory_path);
-        g_object_unref (key_files_directory_file);
     }
 }
 
