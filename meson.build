@@ -1,6 +1,6 @@
 project ('libcloudproviders', 'c',
   version: '0.3.1',
-  meson_version: '>=0.47.0',
+  meson_version: '>=0.54.0',
   license: 'LGPL3+',
   default_options: [
     'c_std=gnu99',
