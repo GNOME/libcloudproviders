@@ -30,6 +30,14 @@
     </foaf:Person>
   </maintainer>
 
+  <maintainer>
+    <foaf:Person>
+      <foaf:name>Corentin Noël</foaf:name>
+      <foaf:mbox rdf:resource="mailto:corentin.noel@collabora.com" />
+      <gnome:userid>corentinnoel</gnome:userid>
+    </foaf:Person>
+  </maintainer>
+
   <license rdf:resource="https://www.gnu.org/licenses/lgpl-3.0.txt" />
 
 </Project>
