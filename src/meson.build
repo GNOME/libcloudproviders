@@ -56,6 +56,7 @@ libcloudproviders_dep = declare_dependency (
   dependencies: libcloudproviders_deps,
   include_directories: include_directories('.')
 )
+meson.override_dependency('libcloudproviders', libcloudproviders_dep)
 
 if get_option('introspection')
   libcloudproviders_gir = gnome.generate_gir(
