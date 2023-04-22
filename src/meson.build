@@ -1,4 +1,4 @@
-libcloudproviders_deps = [glib, gio, gio_unix]
+libcloudproviders_deps = [glib, gio, gio_platform]
 
 libcloudproviders_headers = [
   'cloudproviders.h',
