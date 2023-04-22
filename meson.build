@@ -36,7 +36,13 @@ add_project_arguments(global_cflags, language: 'c')
 glib_ver = '>= 2.51.2'
 glib = dependency ('glib-2.0', version: glib_ver)
 gio = dependency ('gio-2.0', version: glib_ver)
-gio_unix = dependency ('gio-unix-2.0', version: glib_ver)
+
+host_os = host_machine.system().to_lower()
+if host_os.contains('mingw') or host_os.contains('cygwin') or host_os.contains('windows')
+    gio_platform = dependency ('gio-windows-2.0', version: glib_ver)
+else
+    gio_platform = dependency ('gio-unix-2.0', version: glib_ver)
+endif
 
 add_project_arguments(
   '-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_52',
