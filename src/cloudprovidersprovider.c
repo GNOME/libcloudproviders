@@ -103,6 +103,9 @@ cloud_providers_provider_finalize (GObject *object)
     }
     g_clear_object (&self->manager);
 
+    g_cancellable_cancel (self->cancellable);
+    g_clear_object (&self->cancellable);
+
     G_OBJECT_CLASS (cloud_providers_provider_parent_class)->finalize (object);
 }
 
@@ -362,8 +365,6 @@ on_bus_acquired (GObject      *source_object,
 
   self = CLOUD_PROVIDERS_PROVIDER (user_data);
   self->bus = bus;
-  g_clear_object (&self->cancellable);
-  self->cancellable = g_cancellable_new ();
 
   cloud_providers_dbus_object_manager_client_new_for_bus (G_BUS_TYPE_SESSION,
                                                           G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
@@ -378,6 +379,7 @@ on_bus_acquired (GObject      *source_object,
 static void
 cloud_providers_provider_init (CloudProvidersProvider *self)
 {
+    self->cancellable = g_cancellable_new ();
     g_bus_get (G_BUS_TYPE_SESSION,
                self->cancellable,
                on_bus_acquired,
