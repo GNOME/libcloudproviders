@@ -267,31 +267,44 @@ cloud_providers_account_new (GDBusProxy *proxy)
 }
 
 static void
+cloud_providers_account_dispose (GObject *object)
+{
+    CloudProvidersAccount *self = (CloudProvidersAccount *)object;
+
+    g_clear_object (&self->icon);
+    g_clear_object (&self->action_group);
+    g_clear_object (&self->menu_model);
+    if (self->proxy)
+        g_signal_handlers_disconnect_by_data (self->proxy, self);
+    g_clear_object (&self->proxy);
+    g_clear_object (&self->bus);
+
+    G_OBJECT_CLASS (cloud_providers_account_parent_class)->dispose (object);
+}
+
+static void
 cloud_providers_account_finalize (GObject *object)
 {
-  CloudProvidersAccount *self = (CloudProvidersAccount *)object;
+    CloudProvidersAccount *self = (CloudProvidersAccount *)object;
 
-  g_signal_handlers_disconnect_by_data (self->proxy, self);
-  g_free (self->name);
-  g_free (self->path);
-  g_clear_object (&self->icon);
-  g_clear_object (&self->action_group);
-  g_clear_object (&self->bus);
-  g_clear_object (&self->proxy);
-  g_free (self->bus_name);
-  g_free (self->object_path);
+    g_clear_pointer (&self->name, g_free);
+    g_clear_pointer (&self->path, g_free);
+    g_clear_pointer (&self->bus_name, g_free);
+    g_clear_pointer (&self->object_path, g_free);
+    g_clear_pointer (&self->status_details, g_free);
 
-  G_OBJECT_CLASS (cloud_providers_account_parent_class)->finalize (object);
+    G_OBJECT_CLASS (cloud_providers_account_parent_class)->finalize (object);
 }
 
 static void
 cloud_providers_account_class_init (CloudProvidersAccountClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+    GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->set_property = cloud_providers_account_set_property;
-  object_class->get_property = cloud_providers_account_get_property;
-  object_class->finalize = cloud_providers_account_finalize;
+    object_class->dispose = cloud_providers_account_dispose;
+    object_class->finalize = cloud_providers_account_finalize;
+    object_class->set_property = cloud_providers_account_set_property;
+    object_class->get_property = cloud_providers_account_get_property;
 
     properties [PROP_NAME] =
         g_param_spec_string ("name",
@@ -300,8 +313,6 @@ cloud_providers_account_class_init (CloudProvidersAccountClass *klass)
                              NULL,
                              (G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_NAME,
-                                     properties [PROP_NAME]);
     properties [PROP_PATH] =
         g_param_spec_string ("path",
                              "Path",
@@ -309,8 +320,6 @@ cloud_providers_account_class_init (CloudProvidersAccountClass *klass)
                              NULL,
                              (G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_PATH,
-                                     properties [PROP_PATH]);
     properties [PROP_STATUS] =
         g_param_spec_enum ("status",
                            "Status",
@@ -319,8 +328,6 @@ cloud_providers_account_class_init (CloudProvidersAccountClass *klass)
                            CLOUD_PROVIDERS_ACCOUNT_STATUS_INVALID,
                            (G_PARAM_READABLE |
                             G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_STATUS,
-                                     properties [PROP_STATUS]);
     properties [PROP_STATUS_DETAILS] =
         g_param_spec_string ("status-details",
                              "StatusDetails",
@@ -328,8 +335,6 @@ cloud_providers_account_class_init (CloudProvidersAccountClass *klass)
                              NULL,
                              (G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_STATUS_DETAILS,
-                                     properties [PROP_STATUS_DETAILS]);
     properties [PROP_ICON] =
         g_param_spec_object ("icon",
                              "Icon",
@@ -337,8 +342,6 @@ cloud_providers_account_class_init (CloudProvidersAccountClass *klass)
                              G_TYPE_ICON,
                              (G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_ICON,
-                                     properties [PROP_ICON]);
     properties [PROP_MENU_MODEL] =
         g_param_spec_object ("menu-model",
                              "MenuModel",
@@ -346,8 +349,6 @@ cloud_providers_account_class_init (CloudProvidersAccountClass *klass)
                              G_TYPE_MENU_MODEL,
                              (G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_MENU_MODEL,
-                                     properties [PROP_MENU_MODEL]);
     properties [PROP_ACTION_GROUP] =
         g_param_spec_object ("action-group",
                              "ActionGroup",
@@ -355,10 +356,10 @@ cloud_providers_account_class_init (CloudProvidersAccountClass *klass)
                              G_TYPE_ACTION_GROUP,
                              (G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_ACTION_GROUP,
-                                     properties [PROP_ACTION_GROUP]);
 
-
+    g_object_class_install_properties (object_class,
+                                       N_PROPS,
+                                       properties);
 }
 
 static void
@@ -464,3 +465,4 @@ cloud_providers_account_get_path (CloudProvidersAccount *self)
 {
   return self->path;
 }
+
