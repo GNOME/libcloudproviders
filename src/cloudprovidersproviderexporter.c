@@ -202,7 +202,7 @@ cloud_providers_provider_exporter_set_property (GObject      *object,
         case PROP_NAME:
         {
             g_free (self->name);
-            self->name = g_strdup (g_value_get_string (value));
+            self->name = g_value_dup_string (value);
             g_debug ("setting name %s\n", self->name);
             cloud_providers_dbus_provider_set_name (self->skeleton, self->name);
         }
@@ -211,21 +211,21 @@ cloud_providers_provider_exporter_set_property (GObject      *object,
         case PROP_BUS_NAME:
         {
             g_return_if_fail (self->bus_name == NULL);
-            self->bus_name = g_strdup (g_value_get_string (value));
+            self->bus_name = g_value_dup_string (value);
         }
         break;
 
         case PROP_BUS_PATH:
         {
             g_return_if_fail (self->bus_path == NULL);
-            self->bus_path = g_strdup (g_value_get_string (value));
+            self->bus_path = g_value_dup_string (value);
         }
         break;
 
         case PROP_BUS:
         {
             g_return_if_fail (self->bus == NULL);
-            self->bus = g_object_ref (g_value_get_object (value));
+            self->bus = g_value_dup_object (value);
         }
         break;
 

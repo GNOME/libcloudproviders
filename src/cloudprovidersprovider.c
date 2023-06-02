@@ -180,7 +180,7 @@ cloud_providers_provider_set_property (GObject      *object,
         case PROP_NAME:
         {
             g_free (self->name);
-            self->name = g_strdup (g_value_get_string (value));
+            self->name = g_value_dup_string (value);
             g_object_notify_by_pspec (object, properties[PROP_NAME]);
         }
         break;

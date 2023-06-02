@@ -252,7 +252,7 @@ cloud_providers_account_exporter_set_property (GObject      *object,
         case PROP_NAME:
         {
             g_free (self->name);
-            self->name = g_strdup (g_value_get_string (value));
+            self->name = g_value_dup_string (value);
             cloud_providers_dbus_account_set_name (self->skeleton, self->name);
         }
         break;
@@ -260,14 +260,14 @@ cloud_providers_account_exporter_set_property (GObject      *object,
         case PROP_BUS_NAME:
         {
             g_return_if_fail (self->bus_name == NULL);
-            self->bus_name = g_strdup (g_value_get_string (value));
+            self->bus_name = g_value_dup_string (value);
         }
         break;
 
         case PROP_PROVIDER:
         {
             g_return_if_fail (self->provider == NULL);
-            self->provider = g_object_ref (g_value_get_object (value));
+            self->provider = g_value_dup_object (value);
         }
         break;
 
@@ -281,7 +281,7 @@ cloud_providers_account_exporter_set_property (GObject      *object,
         case PROP_STATUS_DETAILS:
         {
             g_free (self->status_details);
-            self->status_details = g_strdup (g_value_get_string (value));
+            self->status_details = g_value_dup_string (value);
             cloud_providers_dbus_account_set_status_details (self->skeleton, self->status_details);
         }
         break;
@@ -298,7 +298,7 @@ cloud_providers_account_exporter_set_property (GObject      *object,
         case PROP_PATH:
         {
             g_free (self->path);
-            self->path = g_strdup (g_value_get_string (value));
+            self->path = g_value_dup_string (value);
             cloud_providers_dbus_account_set_path (self->skeleton, self->path);
         }
         break;
