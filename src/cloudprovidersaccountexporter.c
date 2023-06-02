@@ -32,7 +32,7 @@ struct _CloudProvidersAccountExporter
   gchar *bus_name;
   CloudProvidersDbusAccount *skeleton;
 
-  GDBusConnection *bus;
+  GDBusConnection *bus; // unowned, owned by the provider
   gchar *object_path;
   gchar *name;
   gchar *path;
@@ -76,16 +76,14 @@ static GParamSpec *properties [N_PROPS];
 static void
 export_menu_model (CloudProvidersAccountExporter *self)
 {
-  GError *error = NULL;
+    g_autoptr(GError) error = NULL;
 
-  self->menu_model_export_id = g_dbus_connection_export_menu_model (self->bus,
-                                                                    self->object_path,
-                                                                    self->menu_model,
-                                                                    &error);
-  if (self->menu_model_export_id == 0)
-    {
+    self->menu_model_export_id = g_dbus_connection_export_menu_model (self->bus,
+                                                                      self->object_path,
+                                                                      self->menu_model,
+                                                                      &error);
+    if (self->menu_model_export_id == 0)
       g_warning ("Menu export failed: %s", error->message);
-    }
 }
 
 static void
@@ -94,49 +92,55 @@ unexport_menu_model (CloudProvidersAccountExporter *self)
     if(self->menu_model_export_id != 0)
     {
         g_dbus_connection_unexport_menu_model(self->bus, self->menu_model_export_id);
+        self->menu_model_export_id = 0;
     }
 }
 
 static void
-export_action_group(CloudProvidersAccountExporter *self)
+export_action_group (CloudProvidersAccountExporter *self)
 {
-  GError *error = NULL;
+    g_autoptr(GError) error = NULL;
 
-  self->action_group_export_id = g_dbus_connection_export_action_group (self->bus,
-                                                                        self->object_path,
-                                                                        self->action_group,
-                                                                        &error);
-  if (self->action_group_export_id == 0)
+    self->action_group_export_id = g_dbus_connection_export_action_group (self->bus,
+                                                                          self->object_path,
+                                                                          self->action_group,
+                                                                          &error);
+    if (self->action_group_export_id == 0)
+        g_warning ("Action export failed: %s", error->message);
+}
+
+static void
+unexport_action_group (CloudProvidersAccountExporter *self)
+{
+    if (self->action_group_export_id != 0)
     {
-      g_warning ("Action export failed: %s", error->message);
+        g_dbus_connection_unexport_action_group(self->bus, self->action_group_export_id);
+        self->action_group_export_id = 0;
     }
-}
-
-static void
-unexport_action_group(CloudProvidersAccountExporter *self)
-{
-  if (self->action_group_export_id != 0)
-  {
-    g_dbus_connection_unexport_action_group(self->bus, self->action_group_export_id);
-  }
 }
 
 gchar *
 cloud_providers_account_exporter_get_object_path (CloudProvidersAccountExporter *self)
 {
-  return self->object_path;
+    g_return_val_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT_EXPORTER (self), NULL);
+
+    return self->object_path;
 }
 
 gchar *
 cloud_providers_account_exporter_get_bus_name (CloudProvidersAccountExporter *self)
 {
+    g_return_val_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT_EXPORTER (self), NULL);
+
     return self->bus_name;
 }
 
 CloudProvidersDbusAccount*
 cloud_providers_account_exporter_get_skeleton (CloudProvidersAccountExporter *self)
 {
-  return self->skeleton;
+    g_return_val_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT_EXPORTER (self), NULL);
+
+    return self->skeleton;
 }
 
 /**
@@ -151,13 +155,13 @@ CloudProvidersAccountExporter*
 cloud_providers_account_exporter_new (CloudProvidersProviderExporter *provider,
                                       const gchar                    *bus_name)
 {
-  CloudProvidersAccountExporter *self;
+    CloudProvidersAccountExporter *self;
 
-  self = g_object_new (CLOUD_PROVIDERS_TYPE_ACCOUNT_EXPORTER,
-                       "provider", provider,
-                       "bus-name", bus_name,
-                       NULL);
-  return self;
+    self = g_object_new (CLOUD_PROVIDERS_TYPE_ACCOUNT_EXPORTER,
+                         "provider", provider,
+                         "bus-name", bus_name,
+                         NULL);
+    return self;
 }
 
 static void
@@ -205,7 +209,7 @@ cloud_providers_account_exporter_get_property (GObject    *object,
             g_autoptr (GIcon) icon = NULL;
 
             icon = g_icon_new_for_string (self->icon, NULL);
-            g_value_set_object (value, icon);
+            g_value_take_object (value, g_icon_new_for_string (self->icon, NULL));
         }
         break;
 
@@ -301,19 +305,13 @@ cloud_providers_account_exporter_set_property (GObject      *object,
 
         case PROP_ACTION_GROUP:
         {
-            g_return_if_fail (self->action_group == NULL);
-
-            self->action_group = g_object_ref (g_value_get_object (value));
-            export_action_group (self);
+            cloud_providers_account_exporter_set_action_group (self, (GActionGroup *) g_value_get_object (value));
         }
         break;
 
         case PROP_MENU_MODEL:
         {
-            g_return_if_fail (self->menu_model == NULL);
-
-            self->menu_model = g_object_ref (g_value_get_object (value));
-            export_menu_model (self);
+            cloud_providers_account_exporter_set_menu_model (self, (GMenuModel *) g_value_get_object (value));
         }
         break;
 
@@ -328,6 +326,8 @@ void
 cloud_providers_account_exporter_set_name (CloudProvidersAccountExporter *self,
                                            const gchar                   *name)
 {
+    g_return_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT_EXPORTER (self));
+
     g_object_set (self, "name", name, NULL);
 }
 
@@ -335,6 +335,8 @@ void
 cloud_providers_account_exporter_set_status (CloudProvidersAccountExporter *self,
                                              CloudProvidersAccountStatus    status)
 {
+    g_return_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT_EXPORTER (self));
+
     g_object_set (self, "status", status, NULL);
 }
 
@@ -342,13 +344,17 @@ void
 cloud_providers_account_exporter_set_status_details (CloudProvidersAccountExporter *self,
                                                      const gchar                   *status_details)
 {
-    g_object_set (self, "status_details", status_details, NULL);
+    g_return_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT_EXPORTER (self));
+
+    g_object_set (self, "status-details", status_details, NULL);
 }
 
 void
 cloud_providers_account_exporter_set_icon (CloudProvidersAccountExporter *self,
                                            GIcon                         *icon)
 {
+    g_return_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT_EXPORTER (self));
+
     g_object_set (self, "icon", icon, NULL);
 }
 
@@ -365,7 +371,13 @@ void
 cloud_providers_account_exporter_set_menu_model (CloudProvidersAccountExporter *self,
                                                  GMenuModel                    *menu_model)
 {
-    g_object_set (self, "menu_model", menu_model, NULL);
+    g_return_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT_EXPORTER (self));
+
+    g_return_if_fail (self->menu_model == NULL);
+
+    if (g_set_object (&self->menu_model, menu_model)) {
+        export_menu_model (self);
+    }
 }
 
 /**
@@ -374,40 +386,57 @@ cloud_providers_account_exporter_set_menu_model (CloudProvidersAccountExporter *
  * @action_group: The GActionGroup to be used by the menu exported by cloud_providers_account_exporter_export_menu
  *
  * In order for a menu exported with cloud_providers_account_exporter_export_menu to receive events
- * that will eventually call your callbacks, it needs the corresponding GAcionGroup.
+ * that will eventually call your callbacks, it needs the corresponding GActionGroup.
  * Use this function to export it.
  */
 void
 cloud_providers_account_exporter_set_action_group (CloudProvidersAccountExporter *self,
                                                    GActionGroup                  *action_group)
 {
-    g_object_set (self, "action_group", action_group, NULL);
+    g_return_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT_EXPORTER (self));
+
+    g_return_if_fail (self->action_group == NULL);
+
+    if (g_set_object (&self->action_group, action_group)) {
+        export_action_group (self);
+    }
 }
 
 void
 cloud_providers_account_exporter_set_path (CloudProvidersAccountExporter *self,
                                            const gchar                   *path)
 {
+    g_return_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT_EXPORTER (self));
+
     g_object_set (self, "path", path, NULL);
+}
+
+static void
+cloud_providers_account_exporter_dispose (GObject *object)
+{
+    CloudProvidersAccountExporter *self = (CloudProvidersAccountExporter *)object;
+    unexport_menu_model (self);
+    unexport_action_group (self);
+
+    g_clear_object (&self->skeleton);
+    g_clear_object (&self->action_group);
+    g_clear_object (&self->menu_model);
+    g_clear_object (&self->provider);
+
+    G_OBJECT_CLASS (cloud_providers_account_exporter_parent_class)->dispose (object);
 }
 
 static void
 cloud_providers_account_exporter_finalize (GObject *object)
 {
     CloudProvidersAccountExporter *self = (CloudProvidersAccountExporter *)object;
-    unexport_menu_model (self);
-    unexport_action_group (self);
-    g_free (self->bus_name);
-    g_object_unref (self->skeleton);
 
-    g_free (self->name);
-    g_free (self->object_path);
-    g_free (self->status_details);
-    g_free (self->path);
-    g_free (self->icon);
-    g_object_unref (self->action_group);
-    g_object_unref (self->menu_model);
-    g_object_unref (self->provider);
+    g_clear_pointer (&self->bus_name, g_free);
+    g_clear_pointer (&self->name, g_free);
+    g_clear_pointer (&self->object_path, g_free);
+    g_clear_pointer (&self->status_details, g_free);
+    g_clear_pointer (&self->path, g_free);
+    g_clear_pointer (&self->icon, g_free);
 
     G_OBJECT_CLASS (cloud_providers_account_exporter_parent_class)->finalize (object);
 }
@@ -415,31 +444,31 @@ cloud_providers_account_exporter_finalize (GObject *object)
 static void
 cloud_providers_account_exporter_constructed (GObject *object)
 {
-  const gchar *provider_object_path;
-  g_autofree gchar *object_path = NULL;
-  CloudProvidersAccountExporter *self = CLOUD_PROVIDERS_ACCOUNT_EXPORTER (object);
+    CloudProvidersAccountExporter *self = CLOUD_PROVIDERS_ACCOUNT_EXPORTER (object);
+    const gchar *provider_object_path;
 
-  self->bus = cloud_providers_provider_exporter_get_bus (self->provider);
-  self->skeleton = cloud_providers_dbus_account_skeleton_new ();
-  provider_object_path = cloud_providers_provider_exporter_get_object_path (self->provider);
-  self->object_path = g_strconcat (provider_object_path, "/", self->bus_name, NULL);
-  cloud_providers_provider_exporter_add_account (self->provider, self);
+    self->bus = cloud_providers_provider_exporter_get_bus (self->provider);
+    provider_object_path = cloud_providers_provider_exporter_get_object_path (self->provider);
+    self->object_path = g_strconcat (provider_object_path, "/", self->bus_name, NULL);
+    cloud_providers_provider_exporter_add_account (self->provider, self);
 }
 
 static void
 cloud_providers_account_exporter_init (CloudProvidersAccountExporter *self)
 {
+    self->skeleton = cloud_providers_dbus_account_skeleton_new ();
 }
 
 static void
 cloud_providers_account_exporter_class_init (CloudProvidersAccountExporterClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+    GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->get_property = cloud_providers_account_exporter_get_property;
-  object_class->set_property = cloud_providers_account_exporter_set_property;
-  object_class->constructed = cloud_providers_account_exporter_constructed;
-  object_class->finalize = cloud_providers_account_exporter_finalize;
+    object_class->get_property = cloud_providers_account_exporter_get_property;
+    object_class->set_property = cloud_providers_account_exporter_set_property;
+    object_class->constructed = cloud_providers_account_exporter_constructed;
+    object_class->dispose = cloud_providers_account_exporter_dispose;
+    object_class->finalize = cloud_providers_account_exporter_finalize;
 
     properties [PROP_NAME] =
         g_param_spec_string ("name",
