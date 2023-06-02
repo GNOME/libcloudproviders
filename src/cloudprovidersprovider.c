@@ -321,15 +321,13 @@ on_object_manager_created (GObject      *source_object,
                            GAsyncResult *res,
                            gpointer      user_data)
 {
-    CloudProvidersProvider *self;
-    GError *error = NULL;
+    CloudProvidersProvider *self = CLOUD_PROVIDERS_PROVIDER (user_data);
+    g_autoptr(GError) error = NULL;
 
-    self = CLOUD_PROVIDERS_PROVIDER (user_data);
-    self->manager = cloud_providers_dbus_object_manager_client_new_for_bus_finish (res, &error);
+    self->manager = cloud_providers_dbus_object_manager_client_new_finish (res, &error);
     if (error != NULL)
     {
         g_printerr ("Error getting object manager client: %s", error->message);
-        g_error_free (error);
         return;
     }
 
@@ -351,11 +349,10 @@ on_bus_acquired (GObject      *source_object,
                  GAsyncResult *res,
                  gpointer      user_data)
 {
-  GError *error = NULL;
-  CloudProvidersProvider *self;
-  GDBusConnection *bus;
+  CloudProvidersProvider *self = CLOUD_PROVIDERS_PROVIDER (user_data);
+  g_autoptr(GError) error = NULL;
 
-  bus = g_bus_get_finish (res, &error);
+  self->bus = g_bus_get_finish (res, &error);
   if (error != NULL)
     {
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
@@ -363,16 +360,13 @@ on_bus_acquired (GObject      *source_object,
       return;
     }
 
-  self = CLOUD_PROVIDERS_PROVIDER (user_data);
-  self->bus = bus;
-
-  cloud_providers_dbus_object_manager_client_new_for_bus (G_BUS_TYPE_SESSION,
-                                                          G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-                                                          self->manager_bus_name,
-                                                          self->manager_object_path,
-                                                          NULL,
-                                                          on_object_manager_created,
-                                                          self);
+  cloud_providers_dbus_object_manager_client_new (self->bus,
+                                                  G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+                                                  self->manager_bus_name,
+                                                  self->manager_object_path,
+                                                  self->cancellable,
+                                                  on_object_manager_created,
+                                                  self);
 }
 
 
