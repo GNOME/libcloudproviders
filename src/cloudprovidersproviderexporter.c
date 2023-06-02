@@ -31,8 +31,6 @@ struct _CloudProvidersProviderExporter
   CloudProvidersDbusProvider *skeleton;
   GDBusConnection *bus;
   GDBusObjectManagerServer *manager;
-  gchar *manager_bus_name;
-  gchar *manager_bus_path;
 
   gchar *bus_name;
   gchar *bus_path;
@@ -40,7 +38,6 @@ struct _CloudProvidersProviderExporter
 
   gchar *name;
   GList *accounts;
-  GVariant *dbus_accounts;
 };
 
 G_DEFINE_TYPE (CloudProvidersProviderExporter, cloud_providers_provider_exporter, G_TYPE_OBJECT)
@@ -240,22 +237,31 @@ cloud_providers_provider_exporter_set_property (GObject      *object,
 }
 
 static void
+cloud_providers_provider_exporter_dispose (GObject *object)
+{
+    CloudProvidersProviderExporter *self = (CloudProvidersProviderExporter *)object;
+
+    g_clear_object (&self->skeleton);
+    g_clear_object (&self->manager);
+    g_clear_object (&self->bus);
+
+    g_list_free_full (self->accounts, g_object_unref);
+    self->accounts = NULL;
+
+    G_OBJECT_CLASS (cloud_providers_provider_exporter_parent_class)->dispose (object);
+}
+
+static void
 cloud_providers_provider_exporter_finalize (GObject *object)
 {
-  CloudProvidersProviderExporter *self = (CloudProvidersProviderExporter *)object;
+    CloudProvidersProviderExporter *self = (CloudProvidersProviderExporter *)object;
 
-    g_debug ("finalize provider");
-  g_clear_object (&self->skeleton);
-  g_clear_object (&self->bus);
-  g_free (self->bus_name);
-  g_free (self->bus_path);
-  g_free (self->provider_bus_path);
-  g_clear_object (&self->manager);
-  g_free (self->name);
+    g_clear_pointer (&self->bus_name, g_free);
+    g_clear_pointer (&self->bus_path, g_free);
+    g_clear_pointer (&self->provider_bus_path, g_free);
+    g_clear_pointer (&self->name, g_free);
 
-  g_list_free_full (self->accounts, g_object_unref);
-
-  G_OBJECT_CLASS (cloud_providers_provider_exporter_parent_class)->finalize (object);
+    G_OBJECT_CLASS (cloud_providers_provider_exporter_parent_class)->finalize (object);
 }
 
 static void
@@ -279,12 +285,12 @@ cloud_providers_provider_exporter_init (CloudProvidersProviderExporter *self)
 static void
 cloud_providers_provider_exporter_class_init (CloudProvidersProviderExporterClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  object_class->set_property = cloud_providers_provider_exporter_set_property;
-  object_class->get_property = cloud_providers_provider_exporter_get_property;
-  object_class->constructed = cloud_providers_provider_exporter_constructed;
-  object_class->finalize = cloud_providers_provider_exporter_finalize;
+    GObjectClass *object_class = G_OBJECT_CLASS (klass);
+    object_class->set_property = cloud_providers_provider_exporter_set_property;
+    object_class->get_property = cloud_providers_provider_exporter_get_property;
+    object_class->constructed = cloud_providers_provider_exporter_constructed;
+    object_class->dispose = cloud_providers_provider_exporter_dispose;
+    object_class->finalize = cloud_providers_provider_exporter_finalize;
 
     properties [PROP_NAME] =
         g_param_spec_string ("name",
@@ -293,9 +299,6 @@ cloud_providers_provider_exporter_class_init (CloudProvidersProviderExporterClas
                              NULL,
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_NAME,
-                                     properties [PROP_NAME]);
-
     properties [PROP_BUS_NAME] =
         g_param_spec_string ("bus-name",
                              "BusName",
@@ -304,9 +307,6 @@ cloud_providers_provider_exporter_class_init (CloudProvidersProviderExporterClas
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS |
                               G_PARAM_CONSTRUCT_ONLY));
-    g_object_class_install_property (object_class, PROP_BUS_NAME,
-                                     properties [PROP_BUS_NAME]);
-
     properties [PROP_BUS_PATH] =
         g_param_spec_string ("bus-path",
                              "BusPath",
@@ -315,8 +315,6 @@ cloud_providers_provider_exporter_class_init (CloudProvidersProviderExporterClas
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS |
                               G_PARAM_CONSTRUCT_ONLY));
-    g_object_class_install_property (object_class, PROP_BUS_PATH,
-                                     properties [PROP_BUS_PATH]);
 
     properties [PROP_BUS] =
         g_param_spec_object ("bus",
@@ -326,8 +324,9 @@ cloud_providers_provider_exporter_class_init (CloudProvidersProviderExporterClas
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS |
                               G_PARAM_CONSTRUCT_ONLY));
-    g_object_class_install_property (object_class, PROP_BUS,
-                                     properties [PROP_BUS]);
+    g_object_class_install_properties (object_class,
+                                       N_PROPS,
+                                       properties);
 }
 
 void
@@ -344,7 +343,7 @@ cloud_providers_provider_exporter_get_name (CloudProvidersProviderExporter *self
 }
 
 /**
- * cloud_providers_provider_exporter_new:
+ * cloud_providers_provider_exporter_new
  * @bus: A #GDbusConnection to export the objects to
  * @bus_name: A DBus name to bind to
  * @bus_path: A DBus object path
@@ -376,4 +375,3 @@ cloud_providers_provider_exporter_get_object_path (CloudProvidersProviderExporte
 {
     return self->bus_path;
 }
-    
