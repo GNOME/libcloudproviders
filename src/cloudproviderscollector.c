@@ -32,7 +32,6 @@ struct _CloudProvidersCollector
     GObject parent;
 
     GList *providers;
-    GHashTable* provider_object_managers;
     GDBusConnection *bus;
     GCancellable *cancellable;
     GList *monitors;
@@ -68,22 +67,16 @@ on_bus_acquired (GObject      *source_object,
                  GAsyncResult *res,
                  gpointer      user_data)
 {
-  GError *error = NULL;
-  CloudProvidersCollector *self;
-  GDBusConnection *bus;
+  CloudProvidersCollector *self = CLOUD_PROVIDERS_COLLECTOR (user_data);
+  g_autoptr(GError) error = NULL;
 
-  bus = g_bus_get_finish (res, &error);
+  self->bus = g_bus_get_finish (res, &error);
   if (error != NULL)
     {
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         g_debug ("Error acquiring bus for cloud providers: %s", error->message);
       return;
     }
-
-  self = CLOUD_PROVIDERS_COLLECTOR (user_data);
-  self->bus = bus;
-  g_clear_object (&self->cancellable);
-  self->cancellable = g_cancellable_new ();
 
   update_cloud_providers (self);
 }
@@ -136,6 +129,12 @@ cloud_providers_collector_class_init (CloudProvidersCollectorClass *klass)
 static void
 cloud_providers_collector_init (CloudProvidersCollector *self)
 {
+    self->cancellable = g_cancellable_new ();
+
+    g_bus_get (G_BUS_TYPE_SESSION,
+               self->cancellable,
+               on_bus_acquired,
+               self);
 }
 
 /**
@@ -296,6 +295,12 @@ update_cloud_providers (CloudProvidersCollector *self)
     g_signal_emit_by_name (G_OBJECT (self), "providers-changed");
 }
 
+static gpointer
+singleton_creation_thread (gpointer data)
+{
+    return g_object_new (CLOUD_PROVIDERS_TYPE_COLLECTOR, NULL);
+}
+
 /**
  * cloud_providers_collector_dup_singleton:
  * Main object to track changes in all providers.
@@ -305,19 +310,12 @@ update_cloud_providers (CloudProvidersCollector *self)
 CloudProvidersCollector *
 cloud_providers_collector_dup_singleton (void)
 {
-  static CloudProvidersCollector *self = NULL;
+    static GOnce collector_singleton = G_ONCE_INIT;
+    CloudProvidersCollector *self;
 
-  if (self == NULL)
-    {
-      self = CLOUD_PROVIDERS_COLLECTOR (g_object_new (CLOUD_PROVIDERS_TYPE_COLLECTOR, NULL));
-      self->provider_object_managers = g_hash_table_new(g_str_hash, g_str_equal);
+    g_once (&collector_singleton, singleton_creation_thread, NULL);
 
-      g_bus_get (G_BUS_TYPE_SESSION,
-                 self->cancellable,
-                 on_bus_acquired,
-                 self);
-    }
-
-  return g_object_ref (self);
+    self = CLOUD_PROVIDERS_COLLECTOR (collector_singleton.retval);
+    return g_object_ref (self);
 }
 
