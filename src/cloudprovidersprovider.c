@@ -31,9 +31,7 @@ struct _CloudProvidersProvider
     GList *accounts;
     gchar *manager_bus_name;
     gchar *manager_object_path;
-    gchar *provider_object_path;
 
-    GHashTable* accounts_object_managers;
     GDBusConnection *bus;
     CloudProvidersDbusProvider *proxy;
     GCancellable *cancellable;
@@ -71,6 +69,20 @@ static GParamSpec *properties [N_PROPS];
 
 static void
 on_name_changed (CloudProvidersProvider *self);
+static void
+on_cloud_providers_object_manager_object_added (GDBusObjectManager *manager,
+                                                GDBusObject        *object,
+                                                gpointer            user_data);
+
+static void
+on_cloud_providers_object_manager_object_removed (GDBusObjectManager *manager,
+                                                  GDBusObject        *object,
+                                                  gpointer            user_data);
+
+static void
+on_cloud_providers_object_manager_name_owner_changed (GObject    *object,
+                                                      GParamSpec *pspec,
+                                                      gpointer    user_data);
 
 CloudProvidersProvider *
 cloud_providers_provider_new (const gchar *bus_name,
@@ -86,25 +98,47 @@ cloud_providers_provider_new (const gchar *bus_name,
 }
 
 static void
+cloud_providers_provider_dispose (GObject *object)
+{
+    CloudProvidersProvider *self = (CloudProvidersProvider *)object;
+
+    g_cancellable_cancel (self->cancellable);
+    g_clear_object (&self->cancellable);
+
+    g_list_free_full (self->accounts, g_object_unref);
+    self->accounts = NULL;
+
+    if (self->proxy)
+        g_signal_handlers_disconnect_by_func (self->proxy, G_CALLBACK (on_name_changed), self);
+    g_clear_object (&self->proxy);
+
+    if (self->manager)
+    {
+        g_signal_handlers_disconnect_by_func (self->manager,
+                                              G_CALLBACK (on_cloud_providers_object_manager_name_owner_changed),
+                                              self);
+        g_signal_handlers_disconnect_by_func (self->manager,
+                                              G_CALLBACK (on_cloud_providers_object_manager_object_added),
+                                              self);
+        g_signal_handlers_disconnect_by_func (self->manager,
+                                              G_CALLBACK (on_cloud_providers_object_manager_object_removed),
+                                              self);
+    }
+
+    g_clear_object (&self->manager);
+    g_clear_object (&self->bus);
+
+    G_OBJECT_CLASS (cloud_providers_provider_parent_class)->dispose (object);
+}
+
+static void
 cloud_providers_provider_finalize (GObject *object)
 {
     CloudProvidersProvider *self = (CloudProvidersProvider *)object;
 
-    g_list_free_full (self->accounts, g_object_unref);
-    g_free (self->name);
-    if (self->proxy != NULL)
-    {
-        g_signal_handlers_disconnect_by_data (self->proxy, self);
-    }
-    g_clear_object (&self->proxy);
-    if (self->manager)
-    {
-        g_signal_handlers_disconnect_by_data (self->manager, self);
-    }
-    g_clear_object (&self->manager);
-
-    g_cancellable_cancel (self->cancellable);
-    g_clear_object (&self->cancellable);
+    g_clear_pointer (&self->name, g_free);
+    g_clear_pointer (&self->manager_bus_name, g_free);
+    g_clear_pointer (&self->manager_object_path, g_free);
 
     G_OBJECT_CLASS (cloud_providers_provider_parent_class)->finalize (object);
 }
@@ -165,6 +199,7 @@ cloud_providers_provider_class_init (CloudProvidersProviderClass *klass)
 {
     GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+    object_class->dispose = cloud_providers_provider_dispose;
     object_class->finalize = cloud_providers_provider_finalize;
     object_class->get_property = cloud_providers_provider_get_property;
     object_class->set_property = cloud_providers_provider_set_property;
@@ -175,8 +210,9 @@ cloud_providers_provider_class_init (CloudProvidersProviderClass *klass)
                              "Name of the provider",
                              NULL,
                              (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_NAME,
-                                     properties [PROP_NAME]);
+    g_object_class_install_properties (object_class,
+                                       N_PROPS,
+                                       properties);
 
   /**
    * CloudProviderProvider::accounts-changed
@@ -294,7 +330,7 @@ on_cloud_providers_object_manager_object_removed (GDBusObjectManager *manager,
 static void
 on_cloud_providers_object_manager_name_owner_changed (GObject    *object,
                                                       GParamSpec *pspec,
-                                                      gpointer user_data)
+                                                      gpointer    user_data)
 {
     CloudProvidersProvider *self;
 
