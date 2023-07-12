@@ -29,7 +29,6 @@ struct _CloudProvidersTestServer
   GIcon *icon;
   gchar *path;
   guint timeout_handler;
-  GDBusConnection *connection;
   CloudProvidersProviderExporter *exporter;
 };
 
@@ -50,10 +49,12 @@ test_cloud_provider_finalize (GObject *object)
 {
   CloudProvidersTestServer *self = CLOUD_PROVIDERS_TEST_SERVER (object);
 
-  g_hash_table_unref (self->accounts);
-  g_free (self->name);
-  g_free (self->path);
+  g_clear_handle_id (&self->timeout_handler, g_source_remove);
+  g_clear_pointer (&self->accounts, g_hash_table_unref);
+  g_clear_pointer (&self->name, g_free);
+  g_clear_pointer (&self->path, g_free);
   g_clear_object (&self->icon);
+  g_clear_object (&self->exporter);
 
   G_OBJECT_CLASS (cloud_providers_test_server_parent_class)->finalize (object);
 }
@@ -61,22 +62,18 @@ test_cloud_provider_finalize (GObject *object)
 static void
 cloud_providers_test_server_init (CloudProvidersTestServer *self)
 {
-  GFile *icon_file;
-  gchar *current_dir;
-  gchar *uri;
+  g_autoptr(GFile) icon_file = NULL;
+  g_autofree gchar *current_dir = NULL;
+  g_autofree gchar *uri = NULL;
 
   current_dir = g_get_current_dir ();
 
   self->accounts = g_hash_table_new_full (NULL, NULL, NULL, g_object_unref);
-  self->name = "MyCloud";
+  self->name = g_strdup ("MyCloud");
   self->path = g_strdup (current_dir);
   uri = g_build_filename (current_dir, "icon.svg", NULL);
   icon_file = g_file_new_for_uri (uri);
   self->icon = g_file_icon_new (icon_file);
-
-  g_object_unref (icon_file);
-  g_free (uri);
-  g_free (current_dir);
 }
 
 static void
@@ -143,51 +140,56 @@ static GActionEntry actions[] = {
   { "buy",  activate_radio,  "s",  NULL, NULL },
 };
 
-struct menu {
+static GMenuModel *
+get_model (void)
+{
+  GMenu *section;
   GMenu *mainMenu;
   GMenuItem *website;
   GMenuItem *photos;
   GMenuItem *notes;
   GMenuItem *allowSync;
-  GMenuItem *buy;
-};
-
-static GMenuModel *
-get_model (void)
-{
-  GMenu *section;
-  struct menu *m;
   GMenuItem *item;
   GMenu *submenu;
 
-  m = g_new0(struct menu, 1);
-  m->mainMenu = g_menu_new();
+  mainMenu = g_menu_new();
 
   section = g_menu_new();
-  m->website = g_menu_item_new("MyCloud website", "cloudprovider.website");
-  g_menu_append_item(section, m->website);
-  m->photos = g_menu_item_new("MyCloud photos", "cloudprovider.photos");
-  g_menu_append_item(section, m->photos);
-  m->notes = g_menu_item_new("MyCloud notes", "cloudprovider.notes");
-  g_menu_append_item(section, m->notes);
-  g_menu_append_section(m->mainMenu, NULL, G_MENU_MODEL(section));
+  website = g_menu_item_new("MyCloud website", "cloudprovider.website");
+  g_menu_append_item(section, website);
+  g_object_unref (website);
+  photos = g_menu_item_new("MyCloud photos", "cloudprovider.photos");
+  g_menu_append_item(section, photos);
+  g_object_unref (photos);
+  notes = g_menu_item_new("MyCloud notes", "cloudprovider.notes");
+  g_menu_append_item(section, notes);
+  g_object_unref (notes);
+  g_menu_append_section(mainMenu, NULL, G_MENU_MODEL(section));
+  g_object_unref (section);
 
   section = g_menu_new();
-  m->allowSync = g_menu_item_new("Allow Synchronization", "cloudprovider.allow-sync");
-  g_menu_append_item(section, m->allowSync);
+  allowSync = g_menu_item_new("Allow Synchronization", "cloudprovider.allow-sync");
+  g_menu_append_item(section, allowSync);
+  g_object_unref (allowSync);
 
   submenu = g_menu_new();
   item = g_menu_item_new("5GB", "5");
   g_menu_append_item(submenu, item);
+  g_object_unref (item);
   item = g_menu_item_new("10GB", "10");
   g_menu_append_item(submenu, item);
+  g_object_unref (item);
   item = g_menu_item_new("50GB", "50");
   g_menu_append_item(submenu, item);
+  g_object_unref (item);
   item = g_menu_item_new_submenu("Buy storage", G_MENU_MODEL(submenu));
   g_menu_append_item(section, item);
-  g_menu_append_section(m->mainMenu, NULL, G_MENU_MODEL(section));
+  g_object_unref (item);
+  g_object_unref (submenu);
+  g_menu_append_section(mainMenu, NULL, G_MENU_MODEL(section));
+  g_object_unref (section);
 
-  return G_MENU_MODEL(m->mainMenu);
+  return G_MENU_MODEL(mainMenu);
 }
 
 static GActionGroup *
@@ -218,6 +220,7 @@ change_random_cloud_provider_state (gpointer user_data)
   new_status = g_rand_int_range (rand,
                                  CLOUD_PROVIDERS_ACCOUNT_STATUS_IDLE,
                                  CLOUD_PROVIDERS_ACCOUNT_STATUS_ERROR + 1);
+  g_rand_free (rand);
 
   g_print ("Change status of %03d to %d\n", account_id, new_status);
   account = g_hash_table_lookup (self->accounts, GINT_TO_POINTER (account_id));
@@ -226,7 +229,7 @@ change_random_cloud_provider_state (gpointer user_data)
   return TRUE;
 }
 
-static gchar *
+static const gchar *
 get_status_details (CloudProvidersAccountStatus status)
 {
     gchar *description = "";
@@ -258,6 +261,8 @@ add_accounts (CloudProvidersTestServer *self)
       g_autoptr (CloudProvidersAccountExporter) account = NULL;
       g_autofree gchar *account_object_name = NULL;
       g_autofree gchar *account_name = NULL;
+      GActionGroup *action_group = get_action_group ();
+      g_autoptr(GMenuModel) menu_model = get_model ();
 
       account_object_name = g_strdup_printf ("MyAccount%d", n);
       account_name = g_strdup_printf ("MyAccount %d", n);
@@ -272,9 +277,10 @@ add_accounts (CloudProvidersTestServer *self)
                                                    CLOUD_PROVIDERS_ACCOUNT_STATUS_INVALID);
       cloud_providers_account_exporter_set_status_details (account,
                                                            get_status_details (CLOUD_PROVIDERS_ACCOUNT_STATUS_INVALID));
-      cloud_providers_account_exporter_set_menu_model (account, get_model ());
-      cloud_providers_account_exporter_set_action_group (account, get_action_group ());
-      g_hash_table_insert (self->accounts, GINT_TO_POINTER (n), account);
+      cloud_providers_account_exporter_set_menu_model (account, menu_model);
+      cloud_providers_account_exporter_set_action_group (account, action_group);
+      g_hash_table_insert (self->accounts, GINT_TO_POINTER (n), g_steal_pointer (&account));
+      g_object_unref (action_group);
     }
 
     return G_SOURCE_REMOVE;
@@ -291,8 +297,7 @@ on_bus_acquired (GDBusConnection *connection,
 
     g_debug ("Registering cloud provider server 'MyCloud'\n");
 
-    self->connection = connection;
-    self->exporter = cloud_providers_provider_exporter_new(self->connection,
+    self->exporter = cloud_providers_provider_exporter_new(connection,
                                                            TEST_CLOUD_PROVIDERS_BUS_NAME,
                                                            TEST_CLOUD_PROVIDERS_OBJECT_PATH);
     cloud_providers_provider_exporter_set_name (self->exporter, "My cloud");
@@ -341,7 +346,7 @@ main (int argc, char *argv[])
 
   loop = g_main_loop_new (NULL, FALSE);
   g_main_loop_run (loop);
-
+  g_main_loop_unref (loop);
     g_debug("going oooooout/n");
   g_bus_unown_name (owner_id);
   g_object_unref (test_cloud_provider);
