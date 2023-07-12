@@ -92,9 +92,7 @@ on_provider_accounts_changed (CloudProvidersProvider *provider)
 {
     GList *l;
     gint status;
-    gchar *status_string;
     GIcon *icon;
-    gchar *icon_representation;
     GList *accounts;
     GMenuModel *menu;
 
@@ -102,6 +100,8 @@ on_provider_accounts_changed (CloudProvidersProvider *provider)
     for (l = accounts; l != NULL; l = l->next)
     {
         CloudProvidersAccount *account;
+        g_autofree gchar *status_string = NULL;
+        g_autofree gchar *icon_representation = NULL;
 
         account = CLOUD_PROVIDERS_ACCOUNT (l->data);
         g_signal_connect (account,
@@ -111,7 +111,7 @@ on_provider_accounts_changed (CloudProvidersProvider *provider)
         status = cloud_providers_account_get_status (account);
         status_string = get_status_string (status);
         icon = cloud_providers_account_get_icon (account);
-        icon_representation = icon != NULL ? g_icon_to_string (icon) : "no icon";
+        icon_representation = icon != NULL ? g_icon_to_string (icon) : g_strdup ("no icon");
 
         g_print ("Account: Name - %s, Status - %s (%s), Path - %s, Icon - %s\n",
                  cloud_providers_account_get_name (account),
@@ -119,8 +119,6 @@ on_provider_accounts_changed (CloudProvidersProvider *provider)
                  cloud_providers_account_get_status_details (account),
                  cloud_providers_account_get_path (account),
                  icon_representation);
-
-        g_free (icon_representation);
 
         menu = cloud_providers_account_get_menu_model (account);
         g_print ("\nMenu\n");
@@ -142,9 +140,7 @@ on_collector_changed (CloudProvidersCollector *collector)
     GList *l;
     GList *l2;
     gint status;
-    gchar *status_string;
     GIcon *icon;
-    gchar *icon_representation;
     GMenuModel *menu;
 
     providers = cloud_providers_collector_get_providers (collector);
@@ -164,6 +160,8 @@ on_collector_changed (CloudProvidersCollector *collector)
       for (l2 = accounts; l2 != NULL; l2 = l2->next)
       {
           CloudProvidersAccount *account;
+          g_autofree gchar *status_string = NULL;
+          g_autofree gchar *icon_representation = NULL;
 
           account = CLOUD_PROVIDERS_ACCOUNT (l2->data);
           g_signal_connect_swapped (account,
@@ -181,8 +179,6 @@ on_collector_changed (CloudProvidersCollector *collector)
                    cloud_providers_account_get_status_details (account),
                    cloud_providers_account_get_path (account),
                    icon_representation);
-
-          g_free (icon_representation);
 
           menu = cloud_providers_account_get_menu_model (account);
           g_print ("\nMenu\n");
@@ -210,9 +206,9 @@ main (gint   argc,
   on_collector_changed (collector);
 
   g_print("Waiting for cloud providers\n\n");
-
   g_main_loop_run(loop);
-  g_free(loop);
+  g_main_loop_unref(loop);
+  g_object_unref (collector);
 
   return 0;
 }
