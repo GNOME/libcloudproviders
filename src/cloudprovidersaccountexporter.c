@@ -267,7 +267,7 @@ cloud_providers_account_exporter_set_property (GObject      *object,
         case PROP_PROVIDER:
         {
             g_return_if_fail (self->provider == NULL);
-            self->provider = g_value_dup_object (value);
+            g_set_weak_pointer (&self->provider, g_value_get_object (value));
         }
         break;
 
@@ -421,7 +421,7 @@ cloud_providers_account_exporter_dispose (GObject *object)
     g_clear_object (&self->skeleton);
     g_clear_object (&self->action_group);
     g_clear_object (&self->menu_model);
-    g_clear_object (&self->provider);
+    g_clear_weak_pointer (&self->provider);
 
     G_OBJECT_CLASS (cloud_providers_account_exporter_parent_class)->dispose (object);
 }
