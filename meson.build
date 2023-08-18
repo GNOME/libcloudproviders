@@ -33,7 +33,7 @@ foreach cflag : test_cflags
 endforeach
 add_project_arguments(global_cflags, language: 'c')
 
-glib_ver = '>= 2.51.2'
+glib_ver = '>= 2.56'
 glib = dependency ('glib-2.0', version: glib_ver)
 gio = dependency ('gio-2.0', version: glib_ver)
 
@@ -45,8 +45,8 @@ else
 endif
 
 add_project_arguments(
-  '-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_52',
-  '-DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_52',
+  '-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_56',
+  '-DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_56',
   language: 'c'
 )
 
