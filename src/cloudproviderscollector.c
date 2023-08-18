@@ -82,7 +82,7 @@ on_bus_acquired (GObject      *source_object,
 }
 
 static void
-cloud_providers_collector_finalize (GObject *object)
+cloud_providers_collector_dispose (GObject *object)
 {
     CloudProvidersCollector *self = (CloudProvidersCollector *)object;
     GList *l;
@@ -98,9 +98,12 @@ cloud_providers_collector_finalize (GObject *object)
         g_signal_handlers_disconnect_by_data (G_OBJECT (l->data), self);
     }
     g_list_free_full (self->providers, g_object_unref);
+    self->providers = NULL;
     g_list_free_full (self->monitors, g_object_unref);
+    self->monitors = NULL;
+    g_clear_object (&self->bus);
 
-    G_OBJECT_CLASS (cloud_providers_collector_parent_class)->finalize (object);
+    G_OBJECT_CLASS (cloud_providers_collector_parent_class)->dispose (object);
 }
 
 static void
@@ -108,7 +111,7 @@ cloud_providers_collector_class_init (CloudProvidersCollectorClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->finalize = cloud_providers_collector_finalize;
+  object_class->dispose = cloud_providers_collector_dispose;
 
   /**
    * CloudProviderCollector::providers-changed
@@ -158,40 +161,38 @@ static void
 load_cloud_provider (CloudProvidersCollector *self,
                      GFile                   *file)
 {
-    GKeyFile *key_file;
-    gchar *path;
+    g_autoptr(GKeyFile) key_file = g_key_file_new ();
+    g_autofree gchar *path = NULL;
     GError *error = NULL;
-    gchar *bus_name;
-    gchar *object_path;
-    gboolean success = FALSE;
+    g_autofree gchar *bus_name = NULL;
+    g_autofree gchar *object_path = NULL;
     CloudProvidersProvider *provider;
 
-    key_file = g_key_file_new ();
     path = g_file_get_path (file);
     g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, &error);
     if (error != NULL)
     {
-        g_debug ("test 1");
-        goto out;
+        g_debug ("Error while loading cloud provider key file at %s with error %s", path, error->message);
+        return;
     }
 
     if (!g_key_file_has_group (key_file, KEY_FILE_GROUP))
     {
-        g_debug ("test 2");
-        goto out;
+        g_debug ("Error while loading cloud provider key file at %s with error %s", path, error->message);
+        return;
     }
 
     bus_name = g_key_file_get_string (key_file, KEY_FILE_GROUP, "BusName", &error);
     if (error != NULL)
     {
-        g_debug ("test 3");
-        goto out;
+        g_debug ("Error while loading cloud provider key file at %s with error %s", path, error->message);
+        return;
     }
     object_path = g_key_file_get_string (key_file, KEY_FILE_GROUP, "ObjectPath", &error);
     if (error != NULL)
     {
-        g_debug ("test 4");
-        goto out;
+        g_debug ("Error while loading cloud provider key file at %s with error %s", path, error->message);
+        return;
     }
 
     provider = cloud_providers_provider_new (bus_name, object_path);
@@ -200,18 +201,6 @@ load_cloud_provider (CloudProvidersCollector *self,
                               G_CALLBACK (on_provider_removed), self);
 
     g_debug("Client loading provider: %s %s\n", bus_name, object_path);
-
-    success = TRUE;
-    g_free (bus_name);
-    g_free (object_path);
-out:
-    if (!success)
-    {
-        g_warning ("Error while loading cloud provider key file at %s with error %s", path, error != NULL ? error->message : NULL);
-    }
-    g_key_file_free (key_file);
-    g_object_unref (file);
-    g_free (path);
 }
 
 static void
@@ -231,20 +220,18 @@ load_cloud_providers (CloudProvidersCollector *self)
     len = g_strv_length ((gchar **)data_dirs);
     for (i = 0; i < len; i++)
     {
-        g_autofree gchar *key_files_directory_path = NULL;
-        g_autoptr (GFile) key_files_directory_file = NULL;
+        g_autoptr (GFile) directory_file = NULL;
         g_autoptr (GError) error = NULL;
         g_autoptr (GFileEnumerator) file_enumerator = NULL;
         g_autoptr (GFileInfo) info = NULL;
-        GFileMonitor *monitor;
+        g_autoptr(GFileMonitor) monitor = NULL;
 
-        key_files_directory_path = g_build_filename (data_dirs[i], "cloud-providers", NULL);
-        key_files_directory_file = g_file_new_for_path (key_files_directory_path);
-        monitor = g_file_monitor (key_files_directory_file, G_FILE_MONITOR_WATCH_MOVES,
+        directory_file = g_file_new_build_filename (data_dirs[i], "cloud-providers", NULL);
+        monitor = g_file_monitor (directory_file, G_FILE_MONITOR_WATCH_MOVES,
                                   self->cancellable, NULL);
         g_signal_connect_swapped (monitor, "changed", G_CALLBACK (on_providers_file_changed), self);
-        self->monitors = g_list_append (self->monitors, monitor);
-        file_enumerator = g_file_enumerate_children (key_files_directory_file,
+        self->monitors = g_list_append (self->monitors, g_steal_pointer (&monitor));
+        file_enumerator = g_file_enumerate_children (directory_file,
                                                      "standard::name,standard::type",
                                                      G_FILE_QUERY_INFO_NONE,
                                                      NULL,
@@ -257,12 +244,14 @@ load_cloud_providers (CloudProvidersCollector *self)
         info = g_file_enumerator_next_file (file_enumerator, NULL, &error);
         if (error)
         {
-             g_warning ("Error while enumerating file %s error: %s\n", key_files_directory_path, error->message);
+             g_autofree gchar *directory_path = g_file_get_path (directory_file);
+             g_warning ("Error while enumerating file %s error: %s\n", directory_path, error->message);
              continue;
         }
         while (info != NULL && error == NULL)
         {
-            load_cloud_provider (self, g_file_enumerator_get_child (file_enumerator, info));
+            g_autoptr(GFile) child = g_file_enumerator_get_child (file_enumerator, info);
+            load_cloud_provider (self, child);
             g_clear_object (&info);
             info = g_file_enumerator_next_file (file_enumerator, NULL, &error);
         }
