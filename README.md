@@ -8,7 +8,7 @@ More information on its uses in [this blog post](https://csorianognome.wordpress
 
 ## API Documentation
 
-See the [API documentation](https://csoriano.gitlab.io/libcloudprovidersweb/) for
+See the [API documentation](https://world.pages.gitlab.gnome.org/libcloudproviders/) for
 further details.
 
 # Integrated by
@@ -16,4 +16,4 @@ further details.
 - Nextcloud client 2.5
 ### Client
 - GNOME Nautilus (file manager used by default in Fedora, Ubuntu, OpenSuse, Debian, RHEL, Suse..)
-- Elementary OS on Juno
+- elementary OS
