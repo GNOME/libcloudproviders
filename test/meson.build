@@ -21,6 +21,8 @@ if installed
     configuration: service_conf,
     install_dir: servicedir,
   )
+  applications = join_paths (datadir, 'applications')
   cloudprovidersdata = join_paths (datadir, 'cloud-providers')
+  install_data('org.freedesktop.CloudProviders.ServerExample.desktop', install_dir: applications)
   install_data('org.freedesktop.CloudProviders.ServerExample.ini', install_dir: cloudprovidersdata)
 endif

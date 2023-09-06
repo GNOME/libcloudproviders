@@ -15,10 +15,28 @@
         that can be set using the #CloudProvidersProviderExporter API.
       </para>
       <para>
-        To register your cloud provider you also need to provide a file in DATADIR/cloud-providers.
+        To register your cloud provider, you need to expose the interface it is implementing in its desktop file
       </para>
       <example>
-        <title>Example file to register a cloud provider</title>
+        <title>Example desktop file to register a cloud provider</title>
+        <programlisting>
+          [Desktop Entry]
+          Type=Application
+          Name=mycloudprovider example server
+          NoDisplay=true
+          Implements=org.freedesktop.CloudProviders
+
+          [org.freedesktop.CloudProviders]
+          BusName=org.mycloudprovider.CloudProviders.ServerExample
+          ObjectPath=/org/mycloudprovider/CloudProviders/ServerExample
+        </programlisting>
+      </example>
+      <para>
+        In previous versions, to register your cloud provider you needed to provide a file in DATADIR/cloud-providers.
+        This way of registering providers is still working but is not compatible with containerization.
+      </para>
+      <example>
+        <title>Example file to register a cloud provider in previous versions</title>
         <programlisting>
           [Cloud Provider]
           BusName=org.mycloudprovider.CloudProviders.ServerExample
