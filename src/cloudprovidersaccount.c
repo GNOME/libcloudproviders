@@ -51,7 +51,7 @@ G_DEFINE_TYPE (CloudProvidersAccount, cloud_providers_account, G_TYPE_OBJECT)
  * #CloudProvidersAccount is the basic object used to construct the integrator UI
  * and actions that a provider will present to the user, from the client side.
  * Integrators of the cloud providers can use this object to poll the
- * #CloudProvider menus, status and actions.
+ * #CloudProvidersProvider menus, status and actions.
  */
 
 enum
@@ -245,7 +245,7 @@ cloud_providers_account_set_property (GObject      *object,
  * @proxy: DBus proxy
  *
  * A #CloudProvidersAccount object are used to fetch details about cloud providers from DBus.
- * Object are usually fetched from cloud_providers_get_providers() as a list.
+ * Object are usually fetched from cloud_providers_provider_get_accounts() as a list.
  */
 CloudProvidersAccount*
 cloud_providers_account_new (GDBusProxy *proxy)

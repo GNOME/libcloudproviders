@@ -344,7 +344,7 @@ cloud_providers_provider_exporter_get_name (CloudProvidersProviderExporter *self
 
 /**
  * cloud_providers_provider_exporter_new
- * @bus: A #GDbusConnection to export the objects to
+ * @bus: A #GDBusConnection to export the objects to
  * @bus_name: A DBus name to bind to
  * @bus_path: A DBus object path
  */

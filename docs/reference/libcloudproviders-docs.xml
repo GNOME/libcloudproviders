@@ -80,8 +80,9 @@
     <xi:include href="generated-docs-org.freedesktop.CloudProviders.Account.xml"/>
     <xi:include href="generated-docs-org.freedesktop.CloudProviders.Provider.xml"/>
   </part>
-     <index id="index-all">
+  <index id="index-all">
     <title>Index of all symbols</title>
   </index>
+  <xi:include href="xml/annotation-glossary.xml"><xi:fallback/></xi:include>
 
 </book>
