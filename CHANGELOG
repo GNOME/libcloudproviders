@@ -1,3 +1,7 @@
+0.3.4
+-----
+* Re-release du to release tarball issue
+
 0.3.3
 -----
 * Use a new way to register providers using .desktop files
