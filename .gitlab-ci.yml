@@ -1,11 +1,25 @@
 image: fedora:37
 stages:
   - build
+  - deploy
 before_script:
   - dnf install -y gcc meson ninja-build gettext gtk-doc glib2-devel gobject-introspection-devel vala redhat-rpm-config
+
 build-libcloudproviders:
   stage: build
   script:
   - meson _build .
   - ninja -C _build
   - ninja -C _build install
+
+pages:
+  stage: deploy
+  script:
+  - meson _build . -Denable-gtk-doc=true
+  - ninja libcloudproviders-doc -C _build
+  - mv _build/docs/reference/html public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
