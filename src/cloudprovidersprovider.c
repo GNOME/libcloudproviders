@@ -357,16 +357,20 @@ on_object_manager_created (GObject      *source_object,
                            GAsyncResult *res,
                            gpointer      user_data)
 {
-    CloudProvidersProvider *self = CLOUD_PROVIDERS_PROVIDER (user_data);
+    CloudProvidersProvider *self;
     g_autoptr(GError) error = NULL;
+    GDBusObjectManager *manager;
 
-    self->manager = cloud_providers_dbus_object_manager_client_new_finish (res, &error);
+    manager = cloud_providers_dbus_object_manager_client_new_finish (res, &error);
     if (error != NULL)
     {
         g_printerr ("Error getting object manager client: %s", error->message);
         return;
     }
 
+    /* The CloudProvidersProvider could be destroyed before arriving here */
+    self = CLOUD_PROVIDERS_PROVIDER (user_data);
+    self->manager = g_steal_pointer (&manager);
     g_signal_connect (self->manager, "notify::name-owner",
                       G_CALLBACK (on_cloud_providers_object_manager_name_owner_changed),
                       self);
@@ -385,24 +389,28 @@ on_bus_acquired (GObject      *source_object,
                  GAsyncResult *res,
                  gpointer      user_data)
 {
-  CloudProvidersProvider *self = CLOUD_PROVIDERS_PROVIDER (user_data);
-  g_autoptr(GError) error = NULL;
+    CloudProvidersProvider *self;
+    g_autoptr(GError) error = NULL;
+    GDBusConnection *connection;
 
-  self->bus = g_bus_get_finish (res, &error);
-  if (error != NULL)
+    connection = g_bus_get_finish (res, &error);
+    if (error != NULL)
     {
-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-        g_debug ("Error acquiring bus for cloud provider: %s", error->message);
-      return;
+        if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+            g_debug ("Error acquiring bus for cloud provider: %s", error->message);
+        return;
     }
 
-  cloud_providers_dbus_object_manager_client_new (self->bus,
-                                                  G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-                                                  self->manager_bus_name,
-                                                  self->manager_object_path,
-                                                  self->cancellable,
-                                                  on_object_manager_created,
-                                                  self);
+    /* The CloudProvidersProvider could be destroyed before arriving here */
+    self = CLOUD_PROVIDERS_PROVIDER (user_data);
+    self->bus = g_steal_pointer (&connection);
+    cloud_providers_dbus_object_manager_client_new (self->bus,
+                                                    G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+                                                    self->manager_bus_name,
+                                                    self->manager_object_path,
+                                                    self->cancellable,
+                                                    on_object_manager_created,
+                                                    self);
 }
 
 
@@ -433,4 +441,5 @@ cloud_providers_provider_get_accounts (CloudProvidersProvider *self)
 {
     return self->accounts;
 }
+
 
