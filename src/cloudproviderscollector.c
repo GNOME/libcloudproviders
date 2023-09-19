@@ -69,18 +69,22 @@ on_bus_acquired (GObject      *source_object,
                  GAsyncResult *res,
                  gpointer      user_data)
 {
-  CloudProvidersCollector *self = CLOUD_PROVIDERS_COLLECTOR (user_data);
-  g_autoptr(GError) error = NULL;
+    CloudProvidersCollector *self;
+    g_autoptr(GError) error = NULL;
+    GDBusConnection *connection;
 
-  self->bus = g_bus_get_finish (res, &error);
-  if (error != NULL)
+    connection = g_bus_get_finish (res, &error);
+    if (error != NULL)
     {
-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-        g_debug ("Error acquiring bus for cloud providers: %s", error->message);
-      return;
+        if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+            g_debug ("Error acquiring bus for cloud providers: %s", error->message);
+        return;
     }
 
-  update_cloud_providers (self);
+    /* The CloudProvidersCollector could be destroyed before arriving here */
+    self = CLOUD_PROVIDERS_COLLECTOR (user_data);
+    self->bus = g_steal_pointer (&connection);
+    update_cloud_providers (self);
 }
 
 static void
