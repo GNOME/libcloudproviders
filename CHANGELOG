@@ -1,3 +1,7 @@
+0.3.5
+-----
+* Avoid use after free with g_bus_get
+
 0.3.4
 -----
 * Re-release du to release tarball issue
