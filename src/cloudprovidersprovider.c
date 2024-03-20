@@ -90,6 +90,9 @@ cloud_providers_provider_new (const gchar *bus_name,
 {
     CloudProvidersProvider *self;
 
+    g_return_val_if_fail (bus_name != NULL, NULL);
+    g_return_val_if_fail (object_path != NULL, NULL);
+
     self = g_object_new (CLOUD_PROVIDERS_TYPE_PROVIDER, NULL);
     self->manager_bus_name = g_strdup (bus_name);
     self->manager_object_path = g_strdup (object_path);
@@ -428,6 +431,8 @@ cloud_providers_provider_init (CloudProvidersProvider *self)
 const gchar*
 cloud_providers_provider_get_name (CloudProvidersProvider *self)
 {
+    g_return_val_if_fail (CLOUD_PROVIDERS_IS_PROVIDER (self), NULL);
+
     return self->name;
 }
 
@@ -439,6 +444,8 @@ cloud_providers_provider_get_name (CloudProvidersProvider *self)
 GList*
 cloud_providers_provider_get_accounts (CloudProvidersProvider *self)
 {
+    g_return_val_if_fail (CLOUD_PROVIDERS_IS_PROVIDER (self), NULL);
+
     return self->accounts;
 }
 
