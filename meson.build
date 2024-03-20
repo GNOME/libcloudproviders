@@ -8,9 +8,12 @@ project ('libcloudproviders', 'c',
   ]
 )
 
-api_version = '@0@.@1@'.format(
-  meson.project_version().split('.')[0],
-  meson.project_version().split('.')[1])
+libcloudproviders_minor_version = meson.project_version().split('.')[1].to_int()
+libcloudproviders_micro_version = meson.project_version().split('.')[2].to_int()
+
+libcloudproviders_api_version = '0.3'
+libcloudproviders_soversion = '0'
+libcloudproviders_library_version = '@0@.@1@.@2@'.format(libcloudproviders_soversion, libcloudproviders_minor_version, libcloudproviders_micro_version)
 
 cc = meson.get_compiler('c')
 

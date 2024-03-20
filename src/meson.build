@@ -35,7 +35,8 @@ libcloudproviders_sources += generated_sources
 libcloudproviders = shared_library ('cloudproviders',
   libcloudproviders_sources, headers_with_enums,
   dependencies: libcloudproviders_deps,
-  version: meson.project_version(),
+  soversion: libcloudproviders_soversion,
+  version: libcloudproviders_library_version,
   install: true
 )
 
@@ -62,7 +63,7 @@ if get_option('introspection')
   libcloudproviders_gir = gnome.generate_gir(
     libcloudproviders,
     sources: libcloudproviders_headers + libcloudproviders_sources,
-    nsversion: api_version,
+    nsversion: libcloudproviders_api_version,
     dependencies: libcloudproviders_deps,
     namespace: 'CloudProviders',
     symbol_prefix: 'cloud_providers',
