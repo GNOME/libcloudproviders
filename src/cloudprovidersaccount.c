@@ -35,9 +35,7 @@ struct _CloudProvidersAccount
   GActionGroup *action_group;
 
   GDBusConnection *bus;
-  CloudProvidersDbusAccount *proxy;
-  gchar *bus_name;
-  gchar *object_path;
+  CloudProvidersDbusAccount *proxy; // Owned by bus
 };
 
 G_DEFINE_TYPE (CloudProvidersAccount, cloud_providers_account, G_TYPE_OBJECT)
@@ -130,6 +128,8 @@ setup_proxy (CloudProvidersAccount *self)
     GActionGroup *action_group;
     GIcon *icon = NULL;
     GError *error = NULL;
+    g_autofree gchar *bus_name = NULL;
+    const gchar *object_path;
 
     g_signal_connect (self->proxy, "notify::name", G_CALLBACK (on_name_changed), self);
     g_signal_connect (self->proxy, "notify::status", G_CALLBACK (on_status_changed), self);
@@ -142,12 +142,15 @@ setup_proxy (CloudProvidersAccount *self)
     {
         g_printerr ("Error getting the icon in the client %s", error->message);
     }
+
+    bus_name = g_dbus_proxy_get_name_owner (G_DBUS_PROXY (self->proxy));
+    object_path = g_dbus_proxy_get_object_path (G_DBUS_PROXY (self->proxy));
     menu_model = (GMenuModel*) g_dbus_menu_model_get (self->bus,
-                                                      self->bus_name,
-                                                      self->object_path);
+                                                      bus_name,
+                                                      object_path);
     action_group = (GActionGroup*) g_dbus_action_group_get (self->bus,
-                                                            self->bus_name,
-                                                            self->object_path);
+                                                            bus_name,
+                                                            object_path);
     self->name = cloud_providers_dbus_account_dup_name (self->proxy);
     self->status = cloud_providers_dbus_account_get_status (self->proxy);
     self->status_details = cloud_providers_dbus_account_dup_status_details (self->proxy);
@@ -252,14 +255,12 @@ cloud_providers_account_new (GDBusProxy *proxy)
 {
   CloudProvidersAccount *self;
 
+  g_return_val_if_fail (CLOUD_PROVIDERS_DBUS_IS_ACCOUNT (proxy), NULL);
+
   self = g_object_new (CLOUD_PROVIDERS_TYPE_ACCOUNT, NULL);
 
-
-  g_object_ref (proxy);
-  self->proxy = CLOUD_PROVIDERS_DBUS_ACCOUNT (proxy);
+  self->proxy = CLOUD_PROVIDERS_DBUS_ACCOUNT (g_object_ref (proxy));
   self->bus = g_dbus_proxy_get_connection (G_DBUS_PROXY (self->proxy));
-  self->bus_name = g_dbus_proxy_get_name_owner (G_DBUS_PROXY (self->proxy));
-  self->object_path = g_strdup (g_dbus_proxy_get_object_path (G_DBUS_PROXY (self->proxy)));
 
   setup_proxy (self);
 
@@ -277,7 +278,6 @@ cloud_providers_account_dispose (GObject *object)
     if (self->proxy)
         g_signal_handlers_disconnect_by_data (self->proxy, self);
     g_clear_object (&self->proxy);
-    g_clear_object (&self->bus);
 
     G_OBJECT_CLASS (cloud_providers_account_parent_class)->dispose (object);
 }
@@ -289,8 +289,6 @@ cloud_providers_account_finalize (GObject *object)
 
     g_clear_pointer (&self->name, g_free);
     g_clear_pointer (&self->path, g_free);
-    g_clear_pointer (&self->bus_name, g_free);
-    g_clear_pointer (&self->object_path, g_free);
     g_clear_pointer (&self->status_details, g_free);
 
     G_OBJECT_CLASS (cloud_providers_account_parent_class)->finalize (object);
@@ -378,6 +376,8 @@ cloud_providers_account_init (CloudProvidersAccount *self)
 const gchar*
 cloud_providers_account_get_name (CloudProvidersAccount *self)
 {
+  g_return_val_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT (self), NULL);
+
   return self->name;
 }
 
@@ -392,6 +392,8 @@ cloud_providers_account_get_name (CloudProvidersAccount *self)
 CloudProvidersAccountStatus
 cloud_providers_account_get_status (CloudProvidersAccount *self)
 {
+  g_return_val_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT (self), CLOUD_PROVIDERS_ACCOUNT_STATUS_INVALID);
+
   return self->status;
 }
 
@@ -406,6 +408,8 @@ cloud_providers_account_get_status (CloudProvidersAccount *self)
 const gchar*
 cloud_providers_account_get_status_details (CloudProvidersAccount *self)
 {
+  g_return_val_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT (self), NULL);
+
   return self->status_details;
 }
 
@@ -420,6 +424,8 @@ cloud_providers_account_get_status_details (CloudProvidersAccount *self)
 GIcon*
 cloud_providers_account_get_icon (CloudProvidersAccount *self)
 {
+  g_return_val_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT (self), NULL);
+
   return self->icon;
 }
 
@@ -434,6 +440,8 @@ cloud_providers_account_get_icon (CloudProvidersAccount *self)
 GMenuModel*
 cloud_providers_account_get_menu_model (CloudProvidersAccount *self)
 {
+  g_return_val_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT (self), NULL);
+
   return self->menu_model;
 }
 
@@ -449,6 +457,8 @@ cloud_providers_account_get_menu_model (CloudProvidersAccount *self)
 GActionGroup*
 cloud_providers_account_get_action_group (CloudProvidersAccount *self)
 {
+  g_return_val_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT (self), NULL);
+
   return self->action_group;
 }
 
@@ -463,6 +473,8 @@ cloud_providers_account_get_action_group (CloudProvidersAccount *self)
 const gchar *
 cloud_providers_account_get_path (CloudProvidersAccount *self)
 {
+  g_return_val_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT (self), NULL);
+
   return self->path;
 }
 
