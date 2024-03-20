@@ -26,9 +26,9 @@ G_BEGIN_DECLS
 
 CloudProvidersDbusAccount*
 cloud_providers_account_exporter_get_skeleton (CloudProvidersAccountExporter *self);
-gchar *
+const gchar *
 cloud_providers_account_exporter_get_object_path (CloudProvidersAccountExporter *self);
-gchar *
+const gchar *
 cloud_providers_account_exporter_get_bus_name (CloudProvidersAccountExporter *self);
 
 G_END_DECLS

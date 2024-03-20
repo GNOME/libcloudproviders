@@ -119,7 +119,7 @@ unexport_action_group (CloudProvidersAccountExporter *self)
     }
 }
 
-gchar *
+const gchar *
 cloud_providers_account_exporter_get_object_path (CloudProvidersAccountExporter *self)
 {
     g_return_val_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT_EXPORTER (self), NULL);
@@ -127,7 +127,7 @@ cloud_providers_account_exporter_get_object_path (CloudProvidersAccountExporter 
     return self->object_path;
 }
 
-gchar *
+const gchar *
 cloud_providers_account_exporter_get_bus_name (CloudProvidersAccountExporter *self)
 {
     g_return_val_if_fail (CLOUD_PROVIDERS_IS_ACCOUNT_EXPORTER (self), NULL);
