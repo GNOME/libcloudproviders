@@ -68,7 +68,7 @@ static GParamSpec *properties [N_PROPS];
 static void
 export_provider (CloudProvidersProviderExporter *self)
 {
-    CloudProvidersDbusObjectSkeleton *provider_object_skeleton;
+    g_autoptr(CloudProvidersDbusObjectSkeleton) provider_object_skeleton = NULL;
 
     provider_object_skeleton = cloud_providers_dbus_object_skeleton_new (self->provider_bus_path);
     cloud_providers_dbus_object_skeleton_set_provider (provider_object_skeleton, self->skeleton);
@@ -85,7 +85,7 @@ export_account (CloudProvidersProviderExporter *self,
 {
     CloudProvidersDbusAccount *account_skeleton;
     const gchar *account_object_path;
-    CloudProvidersDbusObjectSkeleton *account_object_skeleton;
+    g_autoptr(CloudProvidersDbusObjectSkeleton) account_object_skeleton = NULL;
 
     account_object_path = cloud_providers_account_exporter_get_object_path (account);
     account_skeleton = cloud_providers_account_exporter_get_skeleton (account);
