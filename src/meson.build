@@ -49,7 +49,9 @@ pkg.generate(
   version : meson.project_version(),
   name : 'libcloudproviders',
   filebase: 'cloudproviders',
-  description : 'Cloud providers DBus API library.'
+  description : 'Cloud providers DBus API library.',
+  requires: [glib, gio],
+  requires_private: [gio_platform],
 )
 
 libcloudproviders_dep = declare_dependency (
