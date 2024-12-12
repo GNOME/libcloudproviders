@@ -8,7 +8,7 @@ More information on its uses in [this blog post](https://csorianognome.wordpress
 
 ## API Documentation
 
-See the [API documentation](https://world.pages.gitlab.gnome.org/libcloudproviders/) for
+See the [API documentation](https://gnome.pages.gitlab.gnome.org/libcloudproviders/) for
 further details.
 
 # Integrated by
