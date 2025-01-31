@@ -1,7 +1,7 @@
 project ('libcloudproviders', 'c',
   version: '0.3.6',
-  meson_version: '>=0.54.0',
-  license: 'LGPL3+',
+  meson_version: '>=0.63.0',
+  license: 'LGPL-3.0-or-later',
   default_options: [
     'c_std=gnu99',
     'warning_level=2',
@@ -68,6 +68,19 @@ gnome = import('gnome')
 
 subdir ('src')
 subdir ('test')
-if get_option ('enable-gtk-doc')
-    subdir ('docs/reference')
+if get_option ('documentation')
+    subdir ('docs')
 endif
+summary({
+  'bindir': bindir,
+  'libdir': libdir,
+  'libexecdir': libexecdir,
+  'datadir': datadir,
+  'includedir': get_option('includedir'),
+}, section: 'Directories')
+summary({
+  'Introspection': get_option('introspection'),
+  'Vala bindings': get_option('vapigen'),
+  'Documentation': get_option('documentation'),
+  'Installed tests': get_option('installed-tests'),
+}, section: 'Configuration')

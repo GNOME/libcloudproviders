@@ -1,23 +1,23 @@
-image: fedora:37
+image: fedora:41
 stages:
   - build
   - deploy
 before_script:
-  - dnf install -y gcc meson ninja-build gettext gtk-doc glib2-devel gobject-introspection-devel vala redhat-rpm-config
+  - dnf install -y gcc meson ninja-build gettext gi-docgen glib2-devel gobject-introspection-devel vala redhat-rpm-config
 
 build-libcloudproviders:
   stage: build
   script:
-  - meson _build .
-  - ninja -C _build
-  - ninja -C _build install
+  - meson setup _build
+  - meson compile -C _build
+  - meson install -C
 
 pages:
   stage: deploy
   script:
-  - meson _build . -Denable-gtk-doc=true
-  - ninja libcloudproviders-doc -C _build
-  - mv _build/docs/reference/html public
+  - meson setup _build -Ddocumentation=true
+  - meson compile -C _build
+  - mv _build/docs/libcloudproviders-0.3 public
   artifacts:
     paths:
       - public
