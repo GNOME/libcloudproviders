@@ -70,7 +70,7 @@ on_bus_acquired (GObject      *source_object,
                  gpointer      user_data)
 {
     CloudProvidersCollector *self;
-    g_autoptr(GError) error = NULL;
+    GError *error = NULL;
     GDBusConnection *connection;
 
     connection = g_bus_get_finish (res, &error);
@@ -78,6 +78,7 @@ on_bus_acquired (GObject      *source_object,
     {
         if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
             g_debug ("Error acquiring bus for cloud providers: %s", error->message);
+        g_clear_error (&error);
         return;
     }
 
@@ -170,12 +171,13 @@ add_cloud_provider (CloudProvidersCollector *self,
                     const gchar             *bus_name,
                     const gchar             *object_path)
 {
-    g_autoptr(CloudProvidersProvider) provider = NULL;
+    CloudProvidersProvider *provider;
 
     provider = cloud_providers_provider_new (bus_name, object_path);
     if (g_hash_table_contains (self->providers_bus_names, bus_name))
     {
         g_debug ("Skipped duplicate provider: %s %s\n", bus_name, object_path);
+        g_object_unref (provider);
         return;
     }
 
@@ -185,22 +187,24 @@ add_cloud_provider (CloudProvidersCollector *self,
                               G_CALLBACK (on_provider_removed), self);
 
     g_debug ("Client loading provider: %s %s\n", bus_name, object_path);
+    g_object_unref (provider);
 }
 
 static void
 load_cloud_provider_from_desktop_file (CloudProvidersCollector *self,
                                        GFile                   *file)
 {
-    g_autoptr(GKeyFile) key_file = NULL;
-    g_autoptr(GError) error = NULL;
-    g_autofree gchar *path = NULL;
-    g_auto(GStrv) implements = NULL;
-    g_autofree gchar *bus_name = NULL;
-    g_autofree gchar *object_path = NULL;
+    GKeyFile *key_file;
+    GError *error = NULL;
+    gchar *path;
+    GStrv implements;
+    gchar *bus_name;
+    gchar *object_path;
 
     path = g_file_get_path (file);
     if (!g_str_has_suffix (path, ".desktop"))
     {
+        g_free (path);
         return;
     }
 
@@ -208,6 +212,9 @@ load_cloud_provider_from_desktop_file (CloudProvidersCollector *self,
     if (!g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, &error))
     {
         g_warning ("Error loading .desktop file at %s: %s", path, error->message);
+        g_clear_error (&error);
+        g_key_file_unref (key_file);
+        g_free (path);
         return;
     }
 
@@ -218,12 +225,18 @@ load_cloud_provider_from_desktop_file (CloudProvidersCollector *self,
         {
             g_warning ("Error loading Implements key from %s: %s", path, error->message);
         }
+        g_clear_error (&error);
+        g_key_file_unref (key_file);
+        g_free (path);
 
         return;
     }
 
     if (!g_strv_contains((const gchar * const *) implements, XDG_DESKTOP_IMPLEMENTS))
     {
+        g_strfreev (implements);
+        g_key_file_unref (key_file);
+        g_free (path);
         return;
     }
 
@@ -233,21 +246,31 @@ load_cloud_provider_from_desktop_file (CloudProvidersCollector *self,
     if (!bus_name || !object_path)
     {
         g_warning ("Unable to find BusName or ObjectPath keys in "XDG_DESKTOP_IMPLEMENTS" section from %s", path);
+        g_free (object_path);
+        g_free (bus_name);
+        g_strfreev (implements);
+        g_key_file_unref (key_file);
+        g_free (path);
         return;
     }
 
     add_cloud_provider (self, bus_name, object_path);
+    g_free (object_path);
+    g_free (bus_name);
+    g_strfreev (implements);
+    g_key_file_unref (key_file);
+    g_free (path);
 }
 
 static void
 load_cloud_provider_from_key_file (CloudProvidersCollector *self,
                                    GFile                   *file)
 {
-    g_autoptr(GKeyFile) key_file = g_key_file_new ();
-    g_autofree gchar *path = NULL;
+    GKeyFile *key_file = g_key_file_new ();
+    gchar *path;
     GError *error = NULL;
-    g_autofree gchar *bus_name = NULL;
-    g_autofree gchar *object_path = NULL;
+    gchar *bus_name;
+    gchar *object_path;
     CloudProvidersProvider *provider;
 
     path = g_file_get_path (file);
@@ -255,12 +278,18 @@ load_cloud_provider_from_key_file (CloudProvidersCollector *self,
     if (error != NULL)
     {
         g_debug ("Error while loading cloud provider key file at %s with error %s", path, error->message);
+        g_clear_error (&error);
+        g_free (path);
+        g_key_file_unref (key_file);
         return;
     }
 
     if (!g_key_file_has_group (key_file, KEY_FILE_GROUP))
     {
         g_debug ("Error while loading cloud provider key file at %s with error %s", path, error->message);
+        g_clear_error (&error);
+        g_free (path);
+        g_key_file_unref (key_file);
         return;
     }
 
@@ -268,12 +297,19 @@ load_cloud_provider_from_key_file (CloudProvidersCollector *self,
     if (error != NULL)
     {
         g_debug ("Error while loading cloud provider key file at %s with error %s", path, error->message);
+        g_clear_error (&error);
+        g_free (path);
+        g_key_file_unref (key_file);
         return;
     }
     object_path = g_key_file_get_string (key_file, KEY_FILE_GROUP, "ObjectPath", &error);
     if (error != NULL)
     {
         g_debug ("Error while loading cloud provider key file at %s with error %s", path, error->message);
+        g_clear_error (&error);
+        g_free (bus_name);
+        g_free (path);
+        g_key_file_unref (key_file);
         return;
     }
 
@@ -283,6 +319,10 @@ load_cloud_provider_from_key_file (CloudProvidersCollector *self,
                               G_CALLBACK (on_provider_removed), self);
 
     g_debug("Client loading provider: %s %s\n", bus_name, object_path);
+    g_free (object_path);
+    g_free (bus_name);
+    g_free (path);
+    g_key_file_unref (key_file);
 }
 
 static void
@@ -304,11 +344,11 @@ load_cloud_providers (CloudProvidersCollector *self)
     {
         for (j = 0; j < G_N_ELEMENTS (data_subdirs); j++)
         {
-            g_autoptr (GFile) directory_file = NULL;
-            g_autoptr (GFileInfo) info = NULL;
-            g_autoptr (GFileEnumerator) file_enumerator = NULL;
-            g_autoptr (GFileMonitor) monitor = NULL;
-            g_autoptr (GError) error = NULL;
+            GFile *directory_file;
+            GFileInfo *info;
+            GFileEnumerator *file_enumerator;
+            GFileMonitor *monitor;
+            GError *error = NULL;
 
             directory_file = g_file_new_build_filename (data_dirs[i], data_subdirs[j], NULL);
             monitor = g_file_monitor (directory_file, G_FILE_MONITOR_WATCH_MOVES,
@@ -323,21 +363,25 @@ load_cloud_providers (CloudProvidersCollector *self)
             if (error)
             {
                 g_clear_error (&error);
+                g_object_unref (directory_file);
                 continue;
             }
 
             info = g_file_enumerator_next_file (file_enumerator, NULL, &error);
             if (error)
             {
-                g_autofree gchar *directory_path = g_file_get_path (directory_file);
+                gchar *directory_path = g_file_get_path (directory_file);
                 g_warning ("Error while enumerating file %s error: %s\n", directory_path, error->message);
+                g_free (directory_path);
                 g_clear_error (&error);
+                g_object_unref (file_enumerator);
+                g_object_unref (directory_file);
                 continue;
             }
 
             while (info != NULL && error == NULL)
             {
-                g_autoptr(GFile) child = g_file_enumerator_get_child (file_enumerator, info);
+                GFile *child = g_file_enumerator_get_child (file_enumerator, info);
                 if (strcmp (data_subdirs[j], "applications") == 0)
                 {
                     load_cloud_provider_from_desktop_file (self, child);
@@ -347,9 +391,13 @@ load_cloud_providers (CloudProvidersCollector *self)
                     load_cloud_provider_from_key_file (self, child);
                 }
 
+                g_clear_object (&child);
                 g_clear_object (&info);
                 info = g_file_enumerator_next_file (file_enumerator, NULL, &error);
             }
+
+            g_object_unref (file_enumerator);
+            g_object_unref (directory_file);
         }
     }
 }

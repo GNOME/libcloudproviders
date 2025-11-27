@@ -361,13 +361,14 @@ on_object_manager_created (GObject      *source_object,
                            gpointer      user_data)
 {
     CloudProvidersProvider *self;
-    g_autoptr(GError) error = NULL;
+    GError *error = NULL;
     GDBusObjectManager *manager;
 
     manager = cloud_providers_dbus_object_manager_client_new_finish (res, &error);
     if (error != NULL)
     {
         g_printerr ("Error getting object manager client: %s", error->message);
+        g_clear_error (&error);
         return;
     }
 
@@ -393,7 +394,7 @@ on_bus_acquired (GObject      *source_object,
                  gpointer      user_data)
 {
     CloudProvidersProvider *self;
-    g_autoptr(GError) error = NULL;
+    GError *error = NULL;
     GDBusConnection *connection;
 
     connection = g_bus_get_finish (res, &error);
@@ -401,6 +402,7 @@ on_bus_acquired (GObject      *source_object,
     {
         if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
             g_debug ("Error acquiring bus for cloud provider: %s", error->message);
+        g_clear_error (&error);
         return;
     }
 

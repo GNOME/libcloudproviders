@@ -76,14 +76,17 @@ static GParamSpec *properties [N_PROPS];
 static void
 export_menu_model (CloudProvidersAccountExporter *self)
 {
-    g_autoptr(GError) error = NULL;
+    GError *error = NULL;
 
     self->menu_model_export_id = g_dbus_connection_export_menu_model (self->bus,
                                                                       self->object_path,
                                                                       self->menu_model,
                                                                       &error);
     if (self->menu_model_export_id == 0)
-      g_warning ("Menu export failed: %s", error->message);
+      {
+        g_warning ("Menu export failed: %s", error->message);
+        g_clear_error (&error);
+      }
 }
 
 static void
@@ -99,14 +102,17 @@ unexport_menu_model (CloudProvidersAccountExporter *self)
 static void
 export_action_group (CloudProvidersAccountExporter *self)
 {
-    g_autoptr(GError) error = NULL;
+    GError *error = NULL;
 
     self->action_group_export_id = g_dbus_connection_export_action_group (self->bus,
                                                                           self->object_path,
                                                                           self->action_group,
                                                                           &error);
     if (self->action_group_export_id == 0)
+      {
         g_warning ("Action export failed: %s", error->message);
+        g_clear_error (&error);
+      }
 }
 
 static void
@@ -206,10 +212,11 @@ cloud_providers_account_exporter_get_property (GObject    *object,
 
         case PROP_ICON:
         {
-            g_autoptr (GIcon) icon = NULL;
+            GIcon *icon;
 
             icon = g_icon_new_for_string (self->icon, NULL);
             g_value_take_object (value, g_icon_new_for_string (self->icon, NULL));
+            g_object_unref (icon);
         }
         break;
 

@@ -128,7 +128,7 @@ setup_proxy (CloudProvidersAccount *self)
     GActionGroup *action_group;
     GIcon *icon = NULL;
     GError *error = NULL;
-    g_autofree gchar *bus_name = NULL;
+    gchar *bus_name;
     const gchar *object_path;
 
     g_signal_connect (self->proxy, "notify::name", G_CALLBACK (on_name_changed), self);
@@ -166,6 +166,8 @@ setup_proxy (CloudProvidersAccount *self)
     g_object_notify_by_pspec (G_OBJECT (self), properties[PROP_PATH]);
     g_object_notify_by_pspec (G_OBJECT (self), properties[PROP_ACTION_GROUP]);
     g_object_notify_by_pspec (G_OBJECT (self), properties[PROP_MENU_MODEL]);
+
+    g_free (bus_name);
 }
 
 static void

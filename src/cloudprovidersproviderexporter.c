@@ -68,7 +68,7 @@ static GParamSpec *properties [N_PROPS];
 static void
 export_provider (CloudProvidersProviderExporter *self)
 {
-    g_autoptr(CloudProvidersDbusObjectSkeleton) provider_object_skeleton = NULL;
+    CloudProvidersDbusObjectSkeleton *provider_object_skeleton;
 
     provider_object_skeleton = cloud_providers_dbus_object_skeleton_new (self->provider_bus_path);
     cloud_providers_dbus_object_skeleton_set_provider (provider_object_skeleton, self->skeleton);
@@ -77,6 +77,8 @@ export_provider (CloudProvidersProviderExporter *self)
 
     g_debug ("provider object path: %s %s\n", self->provider_bus_path,
              g_dbus_object_manager_get_object_path (G_DBUS_OBJECT_MANAGER (self->manager)));
+
+    g_object_unref (provider_object_skeleton);
 }
 
 static void
@@ -85,7 +87,7 @@ export_account (CloudProvidersProviderExporter *self,
 {
     CloudProvidersDbusAccount *account_skeleton;
     const gchar *account_object_path;
-    g_autoptr(CloudProvidersDbusObjectSkeleton) account_object_skeleton = NULL;
+    CloudProvidersDbusObjectSkeleton *account_object_skeleton;
 
     account_object_path = cloud_providers_account_exporter_get_object_path (account);
     account_skeleton = cloud_providers_account_exporter_get_skeleton (account);
@@ -94,6 +96,8 @@ export_account (CloudProvidersProviderExporter *self,
     g_dbus_object_manager_server_export (self->manager, G_DBUS_OBJECT_SKELETON (account_object_skeleton));
     g_debug ("account object path: %s %s\n", account_object_path,
              g_dbus_object_manager_get_object_path (G_DBUS_OBJECT_MANAGER (self->manager)));
+
+    g_object_unref (account_object_skeleton);
 }
 
 static void
