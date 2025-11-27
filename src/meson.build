@@ -20,6 +20,8 @@ libcloudproviders_sources = [
 
 headers_with_enums = gnome.mkenums_simple('enums',
                                           sources : libcloudproviders_headers,
+                                          decorator: 'LIBCLOUDPROVIDERS_API',
+                                          header_prefix: '#include "cloudprovidersexports.h"',
                                           install_dir: incdir,
                                           install_header: true)
 
@@ -28,6 +30,7 @@ generated_sources += gnome.gdbus_codegen(
   'cloudproviders-generated', '../data/cloud-providers-dbus.xml',
   interface_prefix: 'org.freedesktop.CloudProviders',
   namespace: 'CloudProvidersDbus',
+  extra_args: ['--symbol-decorator', 'LIBCLOUDPROVIDERS_API', '--symbol-decorator-header', 'cloudprovidersexports.h'],
   object_manager: true
 )
 
