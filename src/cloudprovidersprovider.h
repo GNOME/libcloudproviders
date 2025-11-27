@@ -27,11 +27,15 @@ G_BEGIN_DECLS
 
 #define CLOUD_PROVIDERS_TYPE_PROVIDER (cloud_providers_provider_get_type())
 
+LIBCLOUDPROVIDERS_API
 G_DECLARE_FINAL_TYPE (CloudProvidersProvider, cloud_providers_provider, CLOUD_PROVIDERS, PROVIDER, GObject)
 
+LIBCLOUDPROVIDERS_API
 CloudProvidersProvider *cloud_providers_provider_new (const gchar *bus_name,
                                                       const gchar *object_path);
+LIBCLOUDPROVIDERS_API
 const gchar* cloud_providers_provider_get_name (CloudProvidersProvider *self);
+LIBCLOUDPROVIDERS_API
 GList* cloud_providers_provider_get_accounts (CloudProvidersProvider *self);
 
 G_END_DECLS

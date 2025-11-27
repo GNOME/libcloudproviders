@@ -25,6 +25,7 @@
 G_BEGIN_DECLS
 
 #define CLOUD_PROVIDERS_TYPE_PROVIDER_EXPORTER (cloud_providers_provider_exporter_get_type())
+LIBCLOUDPROVIDERS_API
 G_DECLARE_FINAL_TYPE (CloudProvidersProviderExporter, cloud_providers_provider_exporter, CLOUD_PROVIDERS, PROVIDER_EXPORTER, GObject)
 
 struct _CloudProvidersProviderExporterClass
@@ -32,17 +33,17 @@ struct _CloudProvidersProviderExporterClass
   GObjectClass parent_class;
 };
 
-void
+LIBCLOUDPROVIDERS_API void
 cloud_providers_provider_exporter_remove_account (CloudProvidersProviderExporter *self,
                                                   CloudProvidersAccountExporter  *account);
 
-void
+LIBCLOUDPROVIDERS_API void
 cloud_providers_provider_exporter_set_name (CloudProvidersProviderExporter *self,
                                             const gchar                    *name);
-const gchar*
+LIBCLOUDPROVIDERS_API const gchar*
 cloud_providers_provider_exporter_get_name (CloudProvidersProviderExporter *self);
 
-CloudProvidersProviderExporter*
+LIBCLOUDPROVIDERS_API CloudProvidersProviderExporter*
 cloud_providers_provider_exporter_new (GDBusConnection *bus,
                                        const gchar     *bus_name,
                                        const gchar     *bus_path);

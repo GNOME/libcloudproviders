@@ -25,6 +25,7 @@
 G_BEGIN_DECLS
 
 #define CLOUD_PROVIDERS_TYPE_COLLECTOR (cloud_providers_collector_get_type())
+LIBCLOUDPROVIDERS_API
 G_DECLARE_FINAL_TYPE (CloudProvidersCollector, cloud_providers_collector, CLOUD_PROVIDERS, COLLECTOR, GObject)
 
 struct _CloudProvidersCollectorClass
@@ -32,8 +33,11 @@ struct _CloudProvidersCollectorClass
   GObjectClass parent_class;
 };
 
+LIBCLOUDPROVIDERS_API
 CloudProvidersCollector *cloud_providers_collector_dup_singleton (void);
+LIBCLOUDPROVIDERS_API
 void cloud_providers_collector_update (CloudProvidersCollector *self);
+LIBCLOUDPROVIDERS_API
 GList *cloud_providers_collector_get_providers (CloudProvidersCollector *self);
 G_END_DECLS
 

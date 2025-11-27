@@ -21,6 +21,7 @@
 #define CLOUD_PROVIDERS_ACCOUNT_H
 
 #include <gio/gio.h>
+#include "cloudprovidersexports.h"
 
 G_BEGIN_DECLS
 
@@ -43,6 +44,7 @@ typedef enum {
 } CloudProvidersAccountStatus;
 
 #define CLOUD_PROVIDERS_TYPE_ACCOUNT (cloud_providers_account_get_type())
+LIBCLOUDPROVIDERS_API
 G_DECLARE_FINAL_TYPE (CloudProvidersAccount, cloud_providers_account, CLOUD_PROVIDERS, ACCOUNT, GObject)
 
 struct _CloudProvidersAccountClass
@@ -50,14 +52,22 @@ struct _CloudProvidersAccountClass
   GObjectClass parent_class;
 };
 
+LIBCLOUDPROVIDERS_API
 CloudProvidersAccount *cloud_providers_account_new (GDBusProxy *proxy);
 
+LIBCLOUDPROVIDERS_API
 const gchar* cloud_providers_account_get_name (CloudProvidersAccount *self);
+LIBCLOUDPROVIDERS_API
 CloudProvidersAccountStatus cloud_providers_account_get_status (CloudProvidersAccount *self);
+LIBCLOUDPROVIDERS_API
 const gchar* cloud_providers_account_get_status_details (CloudProvidersAccount *self);
+LIBCLOUDPROVIDERS_API
 GIcon *cloud_providers_account_get_icon (CloudProvidersAccount *self);
+LIBCLOUDPROVIDERS_API
 GMenuModel *cloud_providers_account_get_menu_model (CloudProvidersAccount *self);
+LIBCLOUDPROVIDERS_API
 GActionGroup* cloud_providers_account_get_action_group (CloudProvidersAccount *self);
+LIBCLOUDPROVIDERS_API
 const gchar *cloud_providers_account_get_path (CloudProvidersAccount *self);
 G_END_DECLS
 

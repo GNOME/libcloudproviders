@@ -6,6 +6,7 @@
 #include "cloudprovidersaccount.h"
 #include "cloudprovidersaccountexporter.h"
 #include "cloudproviderscollector.h"
+#include "cloudprovidersexports.h"
 #include "cloudprovidersprovider.h"
 #include "cloudprovidersproviderexporter.h"
 #undef CLOUDPROVIDERS_INSIDE

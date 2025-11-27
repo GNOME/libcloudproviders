@@ -25,6 +25,7 @@
 G_BEGIN_DECLS
 
 #define CLOUD_PROVIDERS_TYPE_ACCOUNT_EXPORTER (cloud_providers_account_exporter_get_type())
+LIBCLOUDPROVIDERS_API
 G_DECLARE_FINAL_TYPE (CloudProvidersAccountExporter, cloud_providers_account_exporter, CLOUD_PROVIDERS, ACCOUNT_EXPORTER, GObject)
 
 typedef struct _CloudProvidersProviderExporter CloudProvidersProviderExporter;
@@ -34,35 +35,35 @@ struct _CloudProvidersAccountExporterClass
   GObjectClass parent_class;
 };
 
-CloudProvidersAccountExporter*
+LIBCLOUDPROVIDERS_API CloudProvidersAccountExporter*
 cloud_providers_account_exporter_new (CloudProvidersProviderExporter *provider,
                                       const gchar                    *bus_name);
 
-void
+LIBCLOUDPROVIDERS_API void
 cloud_providers_account_exporter_set_name (CloudProvidersAccountExporter *self,
                                            const gchar                    *name);
 
-void
+LIBCLOUDPROVIDERS_API void
 cloud_providers_account_exporter_set_status (CloudProvidersAccountExporter *self,
                                              CloudProvidersAccountStatus    status);
 
-void
+LIBCLOUDPROVIDERS_API void
 cloud_providers_account_exporter_set_status_details (CloudProvidersAccountExporter *self,
                                                      const gchar                   *status_details);
 
-void
+LIBCLOUDPROVIDERS_API void
 cloud_providers_account_exporter_set_icon (CloudProvidersAccountExporter *self,
                                            GIcon                          *icon);
 
-void
+LIBCLOUDPROVIDERS_API void
 cloud_providers_account_exporter_set_menu_model (CloudProvidersAccountExporter *self,
                                                  GMenuModel                     *menu_model);
 
-void
+LIBCLOUDPROVIDERS_API void
 cloud_providers_account_exporter_set_action_group (CloudProvidersAccountExporter *self,
                                                    GActionGroup                   *action_group);
 
-void
+LIBCLOUDPROVIDERS_API void
 cloud_providers_account_exporter_set_path (CloudProvidersAccountExporter *self,
                                            const gchar                    *path);
 
