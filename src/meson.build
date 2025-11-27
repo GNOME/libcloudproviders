@@ -5,6 +5,7 @@ libcloudproviders_headers = [
   'cloudproviderscollector.h',
   'cloudprovidersaccount.h',
   'cloudprovidersaccountexporter.h',
+  'cloudprovidersexports.h',
   'cloudprovidersprovider.h',
   'cloudprovidersproviderexporter.h',
 ]
