@@ -62,9 +62,9 @@ test_cloud_provider_finalize (GObject *object)
 static void
 cloud_providers_test_server_init (CloudProvidersTestServer *self)
 {
-  g_autoptr(GFile) icon_file = NULL;
-  g_autofree gchar *current_dir = NULL;
-  g_autofree gchar *uri = NULL;
+  GFile *icon_file;
+  gchar *current_dir;
+  gchar *uri;
 
   current_dir = g_get_current_dir ();
 
@@ -74,6 +74,9 @@ cloud_providers_test_server_init (CloudProvidersTestServer *self)
   uri = g_build_filename (current_dir, "icon.svg", NULL);
   icon_file = g_file_new_for_uri (uri);
   self->icon = g_file_icon_new (icon_file);
+  g_object_unref (icon_file);
+  g_free (uri);
+  g_free (current_dir);
 }
 
 static void
@@ -258,11 +261,11 @@ add_accounts (CloudProvidersTestServer *self)
   // export multiple accounts as DBus objects to the bus
   for (n = 0; n < COUNT_PLACEHOLDER_ACCOUNTS; n++)
     {
-      g_autoptr (CloudProvidersAccountExporter) account = NULL;
-      g_autofree gchar *account_object_name = NULL;
-      g_autofree gchar *account_name = NULL;
+      CloudProvidersAccountExporter *account;
+      gchar *account_object_name;
+      gchar *account_name;
       GActionGroup *action_group = get_action_group ();
-      g_autoptr(GMenuModel) menu_model = get_model ();
+      GMenuModel *menu_model = get_model ();
 
       account_object_name = g_strdup_printf ("MyAccount%d", n);
       account_name = g_strdup_printf ("MyAccount %d", n);
@@ -280,6 +283,9 @@ add_accounts (CloudProvidersTestServer *self)
       cloud_providers_account_exporter_set_menu_model (account, menu_model);
       cloud_providers_account_exporter_set_action_group (account, action_group);
       g_hash_table_insert (self->accounts, GINT_TO_POINTER (n), g_steal_pointer (&account));
+      g_free (account_name);
+      g_free (account_object_name);
+      g_object_unref (menu_model);
       g_object_unref (action_group);
     }
 

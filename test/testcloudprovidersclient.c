@@ -68,9 +68,9 @@ get_status_string (CloudProvidersAccountStatus status)
 static void
 on_account_status_changed (CloudProvidersAccount *account)
 {
-    g_autofree gchar* status_string = NULL;
+    gchar* status_string;
     GIcon *icon;
-    g_autofree gchar *icon_representation = NULL;
+    gchar *icon_representation;
     GMenuModel *menu;
 
     icon = cloud_providers_account_get_icon (account);
@@ -85,6 +85,8 @@ on_account_status_changed (CloudProvidersAccount *account)
     menu = cloud_providers_account_get_menu_model (account);
     g_print ("\nMenu\n");
     print_gmenu_model (menu);
+    g_free (status_string);
+    g_free (icon_representation);
 }
 
 static void
@@ -100,8 +102,8 @@ on_provider_accounts_changed (CloudProvidersProvider *provider)
     for (l = accounts; l != NULL; l = l->next)
     {
         CloudProvidersAccount *account;
-        g_autofree gchar *status_string = NULL;
-        g_autofree gchar *icon_representation = NULL;
+        gchar *status_string;
+        gchar *icon_representation;
 
         account = CLOUD_PROVIDERS_ACCOUNT (l->data);
         g_signal_connect (account,
@@ -120,6 +122,8 @@ on_provider_accounts_changed (CloudProvidersProvider *provider)
                  cloud_providers_account_get_path (account),
                  icon_representation);
 
+        g_free (icon_representation);
+        g_free (status_string);
         menu = cloud_providers_account_get_menu_model (account);
         g_print ("\nMenu\n");
         print_gmenu_model (menu);
@@ -160,8 +164,8 @@ on_collector_changed (CloudProvidersCollector *collector)
       for (l2 = accounts; l2 != NULL; l2 = l2->next)
       {
           CloudProvidersAccount *account;
-          g_autofree gchar *status_string = NULL;
-          g_autofree gchar *icon_representation = NULL;
+          gchar *status_string;
+          gchar *icon_representation = NULL;
 
           account = CLOUD_PROVIDERS_ACCOUNT (l2->data);
           g_signal_connect_swapped (account,
@@ -180,6 +184,8 @@ on_collector_changed (CloudProvidersCollector *collector)
                    cloud_providers_account_get_path (account),
                    icon_representation);
 
+          g_free (icon_representation);
+          g_free (status_string);
           menu = cloud_providers_account_get_menu_model (account);
           g_print ("\nMenu\n");
           print_gmenu_model (menu);
