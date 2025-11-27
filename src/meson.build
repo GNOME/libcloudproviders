@@ -36,8 +36,14 @@ generated_sources += gnome.gdbus_codegen(
 
 libcloudproviders_sources += generated_sources
 
+libcloudproviders_cargs = []
+if cc.get_argument_syntax() == 'msvc'
+  libcloudproviders_cargs += '-DLIBCLOUDPROVIDERS_API=__declspec (dllexport) extern'
+endif
+
 libcloudproviders = shared_library ('cloudproviders',
   libcloudproviders_sources, headers_with_enums,
+  c_args: libcloudproviders_cargs,
   dependencies: libcloudproviders_deps,
   soversion: libcloudproviders_soversion,
   version: libcloudproviders_library_version,
