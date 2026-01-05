@@ -43,6 +43,7 @@ custom_target('libcloudproviders-doc',
   build_by_default: true,
   install: true,
   install_dir: docs_dir,
+  install_tag: 'doc',
 )
 
 test('Validate docs',
