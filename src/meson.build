@@ -22,15 +22,18 @@ headers_with_enums = gnome.mkenums_simple('enums',
                                           install_dir: incdir,
                                           install_header: true)
 
-generated_sources = []
-generated_sources += gnome.gdbus_codegen(
+gdbus_generated_sources = gnome.gdbus_codegen(
   'cloudproviders-generated', '../data/cloud-providers-dbus.xml',
+  extra_args: '--glib-min-required=@0@'.format(glib_req_version),
   interface_prefix: 'org.freedesktop.CloudProviders',
   namespace: 'CloudProvidersDbus',
+  markdown: 'dbus',
   object_manager: true
 )
 
-libcloudproviders_sources += generated_sources
+libcloudproviders_sources += [gdbus_generated_sources[0], gdbus_generated_sources[1]]
+libcloudproviders_dbus_files = gdbus_generated_sources[2]
+libcloudproviders_dbus_files_dir = meson.current_build_dir()
 
 libcloudproviders = shared_library ('cloudproviders',
   libcloudproviders_sources, headers_with_enums,

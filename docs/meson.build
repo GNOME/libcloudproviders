@@ -5,17 +5,6 @@ expand_content_md_files = [
   'cloudproviders-dbus.md',
 ]
 
-codegen = find_program('gdbus-codegen')
-dbus_doc_files = custom_target(
-  'dbus-doc',
-  command: [codegen, '--generate-md', 'dbus', '@INPUT@', '--output-directory', '@OUTDIR@'],
-  input: meson.project_source_root() / 'data/cloud-providers-dbus.xml',
-  output: [
-    'dbus-org.freedesktop.CloudProviders.Account.md',
-    'dbus-org.freedesktop.CloudProviders.Provider.md',
-  ]
-)
-
 toml_data = configuration_data()
 toml_data.set('VERSION', meson.project_version())
 
@@ -37,7 +26,7 @@ gidocgen = find_program('gi-docgen')
 docs_dir = datadir / 'doc'
 
 custom_target('libcloudproviders-doc',
-  input: [ libcloudproviders_toml, libcloudproviders_gir[0], dbus_doc_files ],
+  input: [ libcloudproviders_toml, libcloudproviders_gir[0], libcloudproviders_dbus_files ],
   output: 'libcloudproviders-@0@'.format(libcloudproviders_api_version),
   command: [
     gidocgen,
@@ -47,7 +36,7 @@ custom_target('libcloudproviders-doc',
     '--output-dir=@OUTPUT@',
     '--no-namespace-dir',
     '--content-dir=@0@'.format(meson.current_source_dir()),
-    '--content-dir=@0@'.format(meson.current_build_dir()),
+    '--content-dir=@0@'.format(libcloudproviders_dbus_files_dir),
     '@INPUT1@',
   ],
   depend_files: [ expand_content_md_files ],

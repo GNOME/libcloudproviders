@@ -1,6 +1,6 @@
 project ('libcloudproviders', 'c',
   version: '0.3.6',
-  meson_version: '>=0.63.0',
+  meson_version: '>=1.9.0',
   license: 'LGPL-3.0-or-later',
   default_options: [
     'c_std=gnu99',
@@ -36,7 +36,7 @@ foreach cflag : test_cflags
 endforeach
 add_project_arguments(global_cflags, language: 'c')
 
-glib_req_version = '2.56'
+glib_req_version = '2.64'
 glib_ver = '>= @0@'.format(glib_req_version)
 glib = dependency ('glib-2.0', version: glib_ver)
 gio = dependency ('gio-2.0', version: glib_ver)
