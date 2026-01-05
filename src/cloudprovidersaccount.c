@@ -303,53 +303,80 @@ cloud_providers_account_class_init (CloudProvidersAccountClass *klass)
     object_class->set_property = cloud_providers_account_set_property;
     object_class->get_property = cloud_providers_account_get_property;
 
+    /**
+     * CloudProvidersAccount:name:
+     *
+     * The name of the account.
+     */
     properties [PROP_NAME] =
-        g_param_spec_string ("name",
-                             "Name",
-                             "The name of the account",
+        g_param_spec_string ("name", NULL, NULL,
                              NULL,
                              (G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));
+
+    /**
+     * CloudProvidersAccount:path:
+     *
+     * The path of the directory where files are located.
+     */
     properties [PROP_PATH] =
-        g_param_spec_string ("path",
-                             "Path",
-                             "The path of the directory where files are located",
+        g_param_spec_string ("path", NULL, NULL,
                              NULL,
                              (G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));
+
+    /**
+     * CloudProvidersAccount:status:
+     *
+     * Status of the account.
+     */
     properties [PROP_STATUS] =
-        g_param_spec_enum ("status",
-                           "Status",
-                           "Status of the account",
+        g_param_spec_enum ("status", NULL, NULL,
                            CLOUD_TYPE_PROVIDERS_ACCOUNT_STATUS,
                            CLOUD_PROVIDERS_ACCOUNT_STATUS_INVALID,
                            (G_PARAM_READABLE |
                             G_PARAM_STATIC_STRINGS));
+
+    /**
+     * CloudProvidersAccount:status-details:
+     *
+     * The details of the account status.
+     */
     properties [PROP_STATUS_DETAILS] =
-        g_param_spec_string ("status-details",
-                             "StatusDetails",
-                             "The details of the account status",
+        g_param_spec_string ("status-details", NULL, NULL,
                              NULL,
                              (G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));
+
+    /**
+     * CloudProvidersAccount:icon:
+     *
+     * The icon representing the account.
+     */
     properties [PROP_ICON] =
-        g_param_spec_object ("icon",
-                             "Icon",
-                             "The icon representing the account",
+        g_param_spec_object ("icon", NULL, NULL,
                              G_TYPE_ICON,
                              (G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));
+
+    /**
+     * CloudProvidersAccount:menu-model:
+     *
+     * The menu model associated with the account.
+     */
     properties [PROP_MENU_MODEL] =
-        g_param_spec_object ("menu-model",
-                             "MenuModel",
-                             "The menu model associated with the account",
+        g_param_spec_object ("menu-model", NULL, NULL,
                              G_TYPE_MENU_MODEL,
                              (G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));
+
+    /**
+     * CloudProvidersAccount:action-group:
+     *
+     * The action group associated with the account and menu model.
+     */
     properties [PROP_ACTION_GROUP] =
-        g_param_spec_object ("action-group",
-                             "ActionGroup",
-                             "The action group associated with the account and menu model",
+        g_param_spec_object ("action-group", NULL, NULL,
                              G_TYPE_ACTION_GROUP,
                              (G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));

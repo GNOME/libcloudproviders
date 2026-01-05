@@ -287,34 +287,48 @@ cloud_providers_provider_exporter_class_init (CloudProvidersProviderExporterClas
     object_class->dispose = cloud_providers_provider_exporter_dispose;
     object_class->finalize = cloud_providers_provider_exporter_finalize;
 
+    /**
+     * CloudProvidersProviderExporter:name:
+     *
+     * The name of the cloud provider.
+     */
     properties [PROP_NAME] =
-        g_param_spec_string ("name",
-                             "Name",
-                             "The name of the cloud provider",
+        g_param_spec_string ("name", NULL, NULL,
                              NULL,
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS));
+
+    /**
+     * CloudProvidersProviderExporter:bus-name:
+     *
+     * The bus name of the provider.
+     */
     properties [PROP_BUS_NAME] =
-        g_param_spec_string ("bus-name",
-                             "BusName",
-                             "BusName",
-                             NULL,
-                             (G_PARAM_READWRITE |
-                              G_PARAM_STATIC_STRINGS |
-                              G_PARAM_CONSTRUCT_ONLY));
-    properties [PROP_BUS_PATH] =
-        g_param_spec_string ("bus-path",
-                             "BusPath",
-                             "BusPath",
+        g_param_spec_string ("bus-name", NULL, NULL,
                              NULL,
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS |
                               G_PARAM_CONSTRUCT_ONLY));
 
+    /**
+     * CloudProvidersProviderExporter:bus-path:
+     *
+     * The bus path of the provider.
+     */
+    properties [PROP_BUS_PATH] =
+        g_param_spec_string ("bus-path", NULL, NULL,
+                             NULL,
+                             (G_PARAM_READWRITE |
+                              G_PARAM_STATIC_STRINGS |
+                              G_PARAM_CONSTRUCT_ONLY));
+
+    /**
+     * CloudProvidersProviderExporter:bus:
+     *
+     * The bus connection object for the provider.
+     */
     properties [PROP_BUS] =
-        g_param_spec_object ("bus",
-                             "Bus",
-                             "Bus",
+        g_param_spec_object ("bus", NULL, NULL,
                              G_TYPE_DBUS_CONNECTION,
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS |

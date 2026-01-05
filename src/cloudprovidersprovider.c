@@ -205,10 +205,13 @@ cloud_providers_provider_class_init (CloudProvidersProviderClass *klass)
     object_class->get_property = cloud_providers_provider_get_property;
     object_class->set_property = cloud_providers_provider_set_property;
 
+    /**
+     * CloudProvidersProvider:name:
+     *
+     * The name of the cloud provider.
+     */
     properties [PROP_NAME] =
-        g_param_spec_string ("name",
-                             "Name",
-                             "Name of the provider",
+        g_param_spec_string ("name", NULL, NULL,
                              NULL,
                              (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
     g_object_class_install_properties (object_class,

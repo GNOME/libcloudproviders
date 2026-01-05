@@ -467,89 +467,108 @@ cloud_providers_account_exporter_class_init (CloudProvidersAccountExporterClass 
     object_class->dispose = cloud_providers_account_exporter_dispose;
     object_class->finalize = cloud_providers_account_exporter_finalize;
 
+    /**
+     * CloudProvidersAccountExporter:name:
+     *
+     * The name of the account.
+     */
     properties [PROP_NAME] =
-        g_param_spec_string ("name",
-                             "Name",
-                             "The name of the account",
+        g_param_spec_string ("name", NULL, NULL,
                              NULL,
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_NAME,
-                                     properties [PROP_NAME]);
+
+    /**
+     * CloudProvidersAccountExporter:bus-name:
+     *
+     * The bus name of the account.
+     */
     properties [PROP_BUS_NAME] =
-        g_param_spec_string ("bus-name",
-                             "BusName",
-                             "The bus name of the account",
+        g_param_spec_string ("bus-name", NULL, NULL,
                              NULL,
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS|
                               G_PARAM_CONSTRUCT_ONLY));
-    g_object_class_install_property (object_class, PROP_BUS_NAME,
-                                     properties [PROP_BUS_NAME]);
+
+    /**
+     * CloudProvidersAccountExporter:provider:
+     *
+     * The provider associated with the account.
+     */
     properties [PROP_PROVIDER] =
-        g_param_spec_object ("provider",
-                             "Provider",
-                             "The provider associated with the account",
+        g_param_spec_object ("provider", NULL, NULL,
                              CLOUD_PROVIDERS_TYPE_PROVIDER_EXPORTER,
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS |
                               G_PARAM_CONSTRUCT_ONLY));
-    g_object_class_install_property (object_class, PROP_PROVIDER,
-                                     properties [PROP_PROVIDER]);
+
+    /**
+     * CloudProvidersAccountExporter:path:
+     *
+     * The path of the directory where files are located.
+     */
     properties [PROP_PATH] =
-        g_param_spec_string ("path",
-                             "Path",
-                             "The path of the directory where files are located",
+        g_param_spec_string ("path", NULL, NULL,
                              NULL,
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_PATH,
-                                     properties [PROP_PATH]);
+
+    /**
+     * CloudProvidersAccountExporter:status:
+     *
+     * Status of the account.
+     */
     properties [PROP_STATUS] =
-        g_param_spec_enum ("status",
-                          "Status",
-                          "Status of the account",
-                          CLOUD_TYPE_PROVIDERS_ACCOUNT_STATUS,
-                          CLOUD_PROVIDERS_ACCOUNT_STATUS_INVALID,
-                          (G_PARAM_READWRITE |
-                           G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_STATUS,
-                                     properties [PROP_STATUS]);
+        g_param_spec_enum ("status", NULL, NULL,
+                           CLOUD_TYPE_PROVIDERS_ACCOUNT_STATUS,
+                           CLOUD_PROVIDERS_ACCOUNT_STATUS_INVALID,
+                           (G_PARAM_READWRITE |
+                            G_PARAM_STATIC_STRINGS));
+
+    /**
+     * CloudProvidersAccountExporter:status-details:
+     *
+     * The details of the account status.
+     */
     properties [PROP_STATUS_DETAILS] =
-        g_param_spec_string ("status-details",
-                             "StatusDetails",
-                             "The details of the account status",
+        g_param_spec_string ("status-details", NULL, NULL,
                              NULL,
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_STATUS_DETAILS,
-                                     properties [PROP_STATUS_DETAILS]);
+
+    /**
+     * CloudProvidersAccountExporter:icon:
+     *
+     * The icon representing the account.
+     */
     properties [PROP_ICON] =
-        g_param_spec_object ("icon",
-                             "Icon",
-                             "The icon representing the account",
+        g_param_spec_object ("icon", NULL, NULL,
                              G_TYPE_ICON,
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_ICON,
-                                     properties [PROP_ICON]);
+
+    /**
+     * CloudProvidersAccountExporter:menu-model:
+     *
+     * The menu model associated with the account.
+     */
     properties [PROP_MENU_MODEL] =
-        g_param_spec_object ("menu-model",
-                             "MenuModel",
-                             "The menu model associated with the account",
+        g_param_spec_object ("menu-model", NULL, NULL,
                              G_TYPE_MENU_MODEL,
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_MENU_MODEL,
-                                     properties [PROP_MENU_MODEL]);
+
+    /**
+     * CloudProvidersAccountExporter:action-group:
+     *
+     * The action group associated with the account and menu model.
+     */
     properties [PROP_ACTION_GROUP] =
-        g_param_spec_object ("action-group",
-                             "ActionGroup",
-                             "The action group associated with the account and menu model",
+        g_param_spec_object ("action-group", NULL, NULL,
                              G_TYPE_ACTION_GROUP,
                              (G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (object_class, PROP_ACTION_GROUP,
-                                     properties [PROP_ACTION_GROUP]);
+
+    g_object_class_install_properties (object_class, N_PROPS, properties);
 }
 
