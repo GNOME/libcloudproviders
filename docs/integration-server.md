@@ -1,11 +1,11 @@
 Title: Implementing support as a cloud provider
 
-Cloud providers need to create #CloudProvidersAccountExporter objects for
-every account they like to expose to the API and use the #CloudProvidersAccountExporter
-API to set the properties of the accounts. Also a #CloudProvidersProviderExporter
-needs to be created in order to hold all the #CloudProvidersAccountExporter objects
-that will be added to the provider when created. #CloudProvidersProviderExporter also
-exports properties that define the provider that can be set using the #CloudProvidersProviderExporter API.
+Cloud providers need to create [class@AccountExporter] objects for
+every account they like to expose to the API and use the [class@AccountExporter]
+API to set the properties of the accounts. Also a [class@ProviderExporter]
+needs to be created in order to hold all the [class@AccountExporter] objects
+that will be added to the provider when created. [class@ProviderExporter] also
+exports properties that define the provider that can be set using the [class@ProviderExporter] API.
 
 To register your cloud provider, you need to expose the interface it is implementing in its desktop file
 
