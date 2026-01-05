@@ -73,11 +73,12 @@ if get_option('introspection')
     namespace: 'CloudProviders',
     symbol_prefix: 'cloud_providers',
     link_with: libcloudproviders,
+    header: 'cloudproviders/cloudproviders.h',
     includes: [ 'GLib-2.0', 'Gio-2.0' ],
     install: true,
     install_dir_gir: girdir,
     install_dir_typelib: typelibdir,
-    extra_args: [ '--c-include=cloudproviders/cloudproviders.h', '--quiet' ]
+    extra_args: ['--quiet']
   )
 endif
 
