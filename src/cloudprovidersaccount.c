@@ -41,15 +41,14 @@ struct _CloudProvidersAccount
 G_DEFINE_TYPE (CloudProvidersAccount, cloud_providers_account, G_TYPE_OBJECT)
 
 /**
- * SECTION:cloudprovidersaccount
- * @title: CloudProvidersAccount
- * @short_description: Base object for representing a single account for clients.
- * @include: src/cloudprovideraccount.h
+ * CloudProvidersAccount:
  *
- * #CloudProvidersAccount is the basic object used to construct the integrator UI
+ * Base object for representing a single account for clients.
+ *
+ * CloudProvidersAccount is the basic object used to construct the integrator UI
  * and actions that a provider will present to the user, from the client side.
  * Integrators of the cloud providers can use this object to poll the
- * #CloudProvidersProvider menus, status and actions.
+ * [class@Provider] menus, status and actions.
  */
 
 enum
@@ -247,8 +246,8 @@ cloud_providers_account_set_property (GObject      *object,
  * cloud_providers_account_new
  * @proxy: DBus proxy
  *
- * A #CloudProvidersAccount object are used to fetch details about cloud providers from DBus.
- * Object are usually fetched from cloud_providers_provider_get_accounts() as a list.
+ * A [class@Account] object is used to fetch details about cloud providers from DBus.
+ * It is usually fetched from [method@Provider.get_accounts] as a list.
  */
 CloudProvidersAccount*
 cloud_providers_account_new (GDBusProxy *proxy)
@@ -449,8 +448,8 @@ cloud_providers_account_get_menu_model (CloudProvidersAccount *self)
  * cloud_providers_account_get_action_group:
  * @self: A cloud provider account
  *
- * Get the action group exported in addition to the #GMenuModel from
- * cloud_providers_account_get_menu_model()
+ * Get the action group exported in addition to the [class@Gio.MenuModel] from
+ * [method@Account.get_menu_model].
  *
  * Returns: (transfer none) : The action group exported by the cloud provider account
  */

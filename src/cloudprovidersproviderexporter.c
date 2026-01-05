@@ -55,14 +55,9 @@ enum
 static GParamSpec *properties [N_PROPS];
 
 /**
- * SECTION:cloudprovidersproviderexporter
- * @title: CloudProvidersProviderExporter
- * @short_description: Base object for representing a single provider
- * @include: src/cloudprovidersexporter.h
+ * CloudProvidersProviderExporter:
  *
- * #CloudProvidersProviderExporter is the base object representing a single cloud provider.
- * Multiple #CloudProvidersAccountExporter objects can be added with cloud_providers_provider_exporter_add_account()
- * After adding the initial set of accounts cloud_providers_provider_exporter_export_objects() must be called.
+ * Base object for representing a single single provider.
  */
 
 static void
@@ -116,7 +111,7 @@ unexport_account(CloudProvidersProviderExporter *self,
  * Each cloud provider can have a variety of account associated with it. Use this
  * function to add the accounts the user set up. This function is currently only internal,
  * as we do automation for the dbus handling for adding and exporting an account.
- * This is handled in cloud_providers_account_exporter_new().
+ * This is handled in [ctor@AccountExporter.new].
  */
 void
 cloud_providers_provider_exporter_add_account (CloudProvidersProviderExporter *self,
@@ -132,7 +127,7 @@ cloud_providers_provider_exporter_add_account (CloudProvidersProviderExporter *s
  * @account: The account object
  *
  * Each cloud provider can have a variety of account associated with it. Use this
- * function to remove the accounts that were added when created by cloud_providers_account_exporter_new().
+ * function to remove the accounts that were added when created by [ctor@AccountExporter.new].
  */
 void
 cloud_providers_provider_exporter_remove_account (CloudProvidersProviderExporter *self,
@@ -344,7 +339,7 @@ cloud_providers_provider_exporter_get_name (CloudProvidersProviderExporter *self
 
 /**
  * cloud_providers_provider_exporter_new
- * @bus: A #GDBusConnection to export the objects to
+ * @bus: A connection to export the objects to
  * @bus_name: A DBus name to bind to
  * @bus_path: A DBus object path
  */

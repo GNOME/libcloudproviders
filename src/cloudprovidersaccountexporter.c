@@ -67,10 +67,9 @@ enum
 static GParamSpec *properties [N_PROPS];
 
 /**
- * SECTION:cloudprovidersaccountexporter
- * @title: CloudProvidersAccountExporter
- * @short_description: Base object for representing a cloud providers account
- * @include: src/cloudprovidersaccountexporter.h
+ * CloudProvidersAccountExporter:
+ *
+ * Base object for representing a cloud providers account
  */
 
 static void
@@ -146,10 +145,9 @@ cloud_providers_account_exporter_get_skeleton (CloudProvidersAccountExporter *se
 /**
  * cloud_providers_account_exporter_new:
  * @provider: The provider to which it will be associated.
- * @bus_name: A unique name for the account
- *               must be a valid DBus object name
+ * @bus_name: A unique name for the account. Must be a valid DBus object name.
  *
- * Create a new #CloudProvidersAccountExporter object
+ * Create a new [class@AccountExporter] object
  */
 CloudProvidersAccountExporter*
 cloud_providers_account_exporter_new (CloudProvidersProviderExporter *provider,
@@ -364,7 +362,7 @@ cloud_providers_account_exporter_set_icon (CloudProvidersAccountExporter *self,
  * @menu_model: The menu model to export
  *
  * One of the benefits of the integration is to display a menu with available
- * options for an account. Use this function to export a GMenuModel menu to be
+ * options for an account. Use this function to export a [class@Gio.MenuModel] menu to be
  * displayed by the chosen integration by the desktop environment or application.
  */
 void
@@ -383,11 +381,10 @@ cloud_providers_account_exporter_set_menu_model (CloudProvidersAccountExporter *
 /**
  * cloud_providers_account_exporter_set_action_group:
  * @self: The cloud provider
- * @action_group: The GActionGroup to be used by the menu exported by cloud_providers_account_exporter_export_menu
+ * @action_group: The action group to be used to render the menu
  *
- * In order for a menu exported with cloud_providers_account_exporter_export_menu to receive events
- * that will eventually call your callbacks, it needs the corresponding GActionGroup.
- * Use this function to export it.
+ * In order for a menu to receive events that will eventually call your callbacks, it needs the
+ * corresponding [iface@Gio.ActionGroup]. Use this function to export it.
  */
 void
 cloud_providers_account_exporter_set_action_group (CloudProvidersAccountExporter *self,

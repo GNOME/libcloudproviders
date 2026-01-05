@@ -40,14 +40,12 @@ struct _CloudProvidersProvider
 G_DEFINE_TYPE (CloudProvidersProvider, cloud_providers_provider, G_TYPE_OBJECT)
 
 /**
- * SECTION:cloudprovidersprovider
- * @title: CloudProvidersProvider
- * @short_description: Base object for representing a single provider for clients.
- * @include: src/cloudprovidersprovider.h
+ * CloudProvidersProvider:
  *
- * #CloudProvidersProvider is the basic object object for client implementers
- * that contains the properties of the provider such as name, and the accounts
- * associated with it.
+ * Base object for representing a single provider for clients.
+ *
+ * This is the basic object object for client implementers that contains the properties of the
+ * provider such as name, and the accounts associated with it.
  */
 
 enum
@@ -439,7 +437,10 @@ cloud_providers_provider_get_name (CloudProvidersProvider *self)
 /**
  * cloud_providers_provider_get_accounts
  * @self: A CloudProvidersProvider
- * Returns: (element-type CloudProviders.Account) (transfer none): A GList* of #CloudProvidersProvider objects.
+ *
+ * Get the list of accounts from this provider.
+ *
+ * Returns: (element-type CloudProvidersAccount) (transfer none): A list of [class@Account] objects.
  */
 GList*
 cloud_providers_provider_get_accounts (CloudProvidersProvider *self)

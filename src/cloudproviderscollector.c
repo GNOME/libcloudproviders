@@ -42,15 +42,13 @@ struct _CloudProvidersCollector
 G_DEFINE_TYPE (CloudProvidersCollector, cloud_providers_collector, G_TYPE_OBJECT)
 
 /**
- * SECTION:cloudproviderscollector
- * @title: CloudProvidersCollector
- * @short_description: Singleton for tracking all providers.
- * @include: src/cloudproviders.h
+ * CloudProvidersCollector:
  *
- * #CloudProvidersCollector is a singleton to track all the changes in all providers.
- * Using a #CloudProvidersCollector you can implement integration for all of them at once
- * and represent them in the UI, track new providers added or removed and their
- * status.
+ * Singleton for tracking all providers.
+ *
+ * This is a singleton to track all the changes in all providers.
+ * Using this class, you can implement integration for all of them at once and represent them in the
+ * UI, track new providers added or removed and their status.
  */
 
 enum
@@ -150,8 +148,11 @@ cloud_providers_collector_init (CloudProvidersCollector *self)
 
 /**
  * cloud_providers_collector_get_providers
- * @self: A CloudProvidersCollector
- * Returns: (element-type CloudProviders.Provider) (transfer none): A GList* of #CloudProvidersProvider objects.
+ * @self: A collector
+ *
+ * Get the list of currently managed providers.
+ *
+ * Returns: (element-type CloudProvidersProvider) (transfer none): A list of [class@Provider] objects.
  */
 GList*
 cloud_providers_collector_get_providers (CloudProvidersCollector *self)
@@ -389,6 +390,7 @@ singleton_creation_thread (gpointer data)
 
 /**
  * cloud_providers_collector_dup_singleton:
+ *
  * Main object to track changes in all providers.
  *
  * Returns: (transfer full): A manager singleton
