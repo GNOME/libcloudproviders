@@ -102,6 +102,7 @@ on_icon_changed (GObject               *object,
 {
     GError *error = NULL;
 
+    g_clear_object (&self->icon);
     self->icon = g_icon_new_for_string (cloud_providers_dbus_account_get_icon (self->proxy), &error);
     if (error != NULL)
     {
