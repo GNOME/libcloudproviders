@@ -204,9 +204,6 @@ cloud_providers_account_exporter_get_property (GObject    *object,
 
         case PROP_ICON:
         {
-            g_autoptr (GIcon) icon = NULL;
-
-            icon = g_icon_new_for_string (self->icon, NULL);
             g_value_take_object (value, g_icon_new_for_string (self->icon, NULL));
         }
         break;
