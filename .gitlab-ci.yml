@@ -12,7 +12,7 @@ include:
 
 .build-deps:
   before_script:
-    - dnf install -y gcc meson ninja-build gettext gi-docgen glib2-devel gobject-introspection-devel vala redhat-rpm-config
+    - dnf install -y gcc meson ninja-build gettext gi-docgen glib2-devel gobject-introspection-devel vala redhat-rpm-config git
 
 build-libcloudproviders:
   extends: .build-deps
